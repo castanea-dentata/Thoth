@@ -1,11 +1,6 @@
-const weightUtils = require('../utils/weight.js');
+import weightUtils from '../utils/weight.js';
 
 const utilsMixin = {
-    data() {
-        return {
-
-        };
-    },
     methods: {
         displayWeight(mg, unit) {
             return weightUtils.MgToWeight(mg, unit) || 0;
@@ -17,8 +12,6 @@ const utilsMixin = {
             }
             return symbol + amount;
         },
-    },
-    filters: { 
     },
 };
 

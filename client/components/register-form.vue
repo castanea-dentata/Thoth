@@ -25,9 +25,7 @@
 import errors from './errors.vue';
 import spinner from './spinner.vue';
 
-const dataTypes = require('../dataTypes.js');
-
-const Library = dataTypes.Library;
+import { Item, Category, List, Library } from '../dataTypes.js';
 
 export default {
     name: 'RegisterForm',

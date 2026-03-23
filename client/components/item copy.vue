@@ -93,8 +93,7 @@ import unitSelect from './unit-select.vue';
 import { nextTick } from 'vue';
 import utilsMixin from '../mixins/utils-mixin.js';
 import bus from '../bus.js';
-
-const weightUtils = require('../utils/weight.js');
+import weightUtils from '../utils/weight.js';
 
 export default {
     name: 'Item',

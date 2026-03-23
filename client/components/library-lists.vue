@@ -115,8 +115,7 @@
 <script>
 import PopoverHover from './popover-hover.vue';
 import bus from '../bus.js';
-
-const dragula = require('dragula');
+import dragula from 'dragula';
 
 export default {
     name: 'LibraryList',

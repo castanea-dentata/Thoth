@@ -121,8 +121,7 @@
 import { nextTick } from 'vue';
 import utilsMixin from '../mixins/utils-mixin.js';
 import bus from '../bus.js';
-
-const dragula = require('dragula');
+import dragula from 'dragula';
 
 export default {
     name: 'LibraryItem',

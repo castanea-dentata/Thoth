@@ -102,9 +102,8 @@
 import colorPicker from './colorpicker.vue';
 import unitSelect from './unit-select.vue';
 import utilsMixin from '../mixins/utils-mixin.js';
-
-const pies = require('../pies.js');
-const colorUtils = require('../utils/color.js');
+import pies from '../pies.js';
+import colorUtils from '../utils/color.js';
 
 export default {
     name: 'ListSummary',

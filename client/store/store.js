@@ -2,13 +2,8 @@ import { createStore } from 'vuex';
 import debounce from 'lodash/debounce';
 import bus from '../bus.js';
 
-const weightUtils = require('../utils/weight.js');
-const dataTypes = require('../dataTypes.js');
-
-const Item = dataTypes.Item;
-const Category = dataTypes.Category;
-const List = dataTypes.List;
-const Library = dataTypes.Library;
+import weightUtils from '../utils/weight.js';
+import { Item, Category, List, Library } from '../dataTypes.js';
 
 const saveInterval = 10000;
 
