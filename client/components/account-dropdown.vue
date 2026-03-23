@@ -1,0 +1,54 @@
+<style lang="scss">
+#headerPopover .lpContent {
+    min-width: 9em;
+}
+</style>
+
+<template>
+    <span class="headerItem hasPopover">
+        <PopoverHover id="headerPopover">
+            <template #target>
+                <span>Signed in as <span class="username">{{ username }}</span> <i class="lpSprite lpExpand" /></span>
+            </template>
+            <template #content>
+                <div slot="content">
+                    <a class="lpHref accountSettings" @click="showAccount">Account Settings</a><br>
+                    <a class="lpHref" @click="showHelp">Help</a><br>
+                    <a class="lpHref signout" @click="signout">Sign Out</a>
+                </div>
+            </template>
+        </PopoverHover>
+    </span>
+</template>
+
+<script>
+import PopoverHover from './popover-hover.vue';
+import bus from '../bus.js';
+
+export default {
+    name: 'AccountDropdown',
+    components: {
+        PopoverHover,
+    },
+    computed: {
+        library() {
+            return this.$store.state.library;
+        },
+        username() {
+            return this.$store.state.loggedIn;
+        },
+    },
+    methods: {
+        showAccount() {
+            bus.emit('showAccount');
+        },
+        showHelp() {
+            bus.emit('showHelp');
+        },
+        signout() {
+            this.$store.commit('signout');
+            this.$router.push('/signin');
+        },
+    },
+};
+</script>

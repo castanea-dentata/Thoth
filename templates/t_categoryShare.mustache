@@ -1,0 +1,16 @@
+<li class="lpCategory" id="{{id}}">
+    <ul class="lpItems lpDataTable">
+        <li class="lpHeader lpItemsHeader">
+            <h2 class="lpCategoryName">{{name}}</h2>
+            {{#showPrices}}<span class="lpPriceCell">Price</span>{{/showPrices}}
+            <span class="lpWeightCell">Weight</span>
+            <span class="lpQtyCell">qty</span>
+        </li>
+        {{{items}}}
+        <li class="lpFooter lpItemsFooter">
+            {{#showPrices}}<span class="lpPriceCell lpNumber"><div class="lpPriceSubtotal">{{currencySymbol}}{{subtotalPriceDisplay}}</div></span>{{/showPrices}}
+            <span class="lpWeightCell lpNumber"><div class="lpSubtotal"><span class="lpDisplaySubtotal" mg="{{subtotalWeight}}">{{subtotalWeightDisplay}}</span> <span class="lpSubtotalUnit">{{subtotalUnit}}</span></div></span>
+            <span class="lpQtyCell lpNumber"><div class="lpSubtotal"><span class="lpQtySubtotal">{{subtotalQty}}</span></div></span>
+        </li>
+    </ul>
+</li>
