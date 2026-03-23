@@ -64,6 +64,7 @@
 
 <script>
 import PopoverHover from './popover-hover.vue';
+import bus from '../bus.js';
 
 export default {
     name: 'ListSettings',

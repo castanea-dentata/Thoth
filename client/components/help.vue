@@ -29,6 +29,7 @@
 
 <script>
 import modal from './modal.vue';
+import bus from '../bus.js';
 
 export default {
     name: 'Help',

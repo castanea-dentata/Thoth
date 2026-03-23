@@ -32,6 +32,7 @@
 <script>
 import errors from './errors.vue';
 import modal from './modal.vue';
+import bus from '../bus.js';
 
 export default {
     name: 'Account',

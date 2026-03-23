@@ -224,9 +224,11 @@ export default {
             }
         },
         updateItemLink() {
+            console.log('updateItemLink fired')
             bus.emit('updateItemLink', this.item);
         },
         updateItemImage() {
+            console.log('updateItemImage fired')
             bus.emit('updateItemImage', this.item);
         },
         viewItemImage() {

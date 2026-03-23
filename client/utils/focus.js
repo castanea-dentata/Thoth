@@ -1,5 +1,6 @@
 import uniqueId from 'lodash/uniqueId';
 import store from '../store/store.js';
+import bus from '../bus.js';
 
 export const selectOnFocus = {
     mounted(el) {

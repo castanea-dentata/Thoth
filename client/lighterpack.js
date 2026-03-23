@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import mitt from 'mitt';
+import bus from './bus.js';
 
 import RootApp from './RootApp.vue';
 import store from './store/store';
