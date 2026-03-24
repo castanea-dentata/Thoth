@@ -65,35 +65,17 @@ function setupDatabase(dbPassword) {
         console.log(`ℹ️  Database '${DB_NAME}' already exists, skipping.`);
     }
 
-    // Create user and grant permissions
-    const sql = `
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${DB_USER}') THEN
-        CREATE USER ${DB_USER} WITH PASSWORD '${dbPassword}';
-    ELSE
-        ALTER USER ${DB_USER} WITH PASSWORD '${dbPassword}';
-    END IF;
-END
-$$;
-GRANT ALL PRIVILEGES ON DATABASE ${DB_NAME} TO ${DB_USER};
-ALTER DATABASE ${DB_NAME} OWNER TO ${DB_USER};
-`;
+    // Create user
+    run(`psql ${DB_NAME} -c "DO $$ BEGIN IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${DB_USER}') THEN CREATE USER ${DB_USER} WITH PASSWORD '${dbPassword}'; END IF; END $$;"`, { ignoreError: true, silent: true });
 
-    try {
-        execSync(`psql ${DB_NAME} -c "${sql.replace(/\n/g, ' ').replace(/"/g, '\\"')}"`, {
-            stdio: 'pipe',
-            encoding: 'utf8',
-        });
-    } catch {
-        // Try alternative approach with individual commands
-        run(`psql ${DB_NAME} -c "CREATE USER ${DB_USER} WITH PASSWORD '${dbPassword}';"`, { ignoreError: true, silent: true });
-        run(`psql ${DB_NAME} -c "ALTER USER ${DB_USER} WITH PASSWORD '${dbPassword}';"`, { ignoreError: true, silent: true });
-        run(`psql ${DB_NAME} -c "GRANT ALL PRIVILEGES ON DATABASE ${DB_NAME} TO ${DB_USER};"`, { ignoreError: true, silent: true });
-        run(`psql ${DB_NAME} -c "ALTER DATABASE ${DB_NAME} OWNER TO ${DB_USER};"`, { ignoreError: true, silent: true });
-        run(`psql ${DB_NAME} -c "GRANT ALL ON SCHEMA public TO ${DB_USER};"`, { ignoreError: true, silent: true });
-        run(`psql ${DB_NAME} -c "ALTER SCHEMA public OWNER TO ${DB_USER};"`, { ignoreError: true, silent: true });
-    }
+    // Set password in case user already exists
+    run(`psql ${DB_NAME} -c "ALTER USER ${DB_USER} WITH PASSWORD '${dbPassword}';"`, { ignoreError: true, silent: true });
+
+    // Grant database privileges
+    run(`psql postgres -c "GRANT ALL PRIVILEGES ON DATABASE ${DB_NAME} TO ${DB_USER};"`, { ignoreError: true, silent: true });
+
+    // Change database owner
+    run(`psql postgres -c "ALTER DATABASE ${DB_NAME} OWNER TO ${DB_USER};"`, { ignoreError: true, silent: true });
 
     // Grant schema permissions
     run(`psql ${DB_NAME} -c "GRANT ALL ON SCHEMA public TO ${DB_USER};"`, { ignoreError: true, silent: true });
