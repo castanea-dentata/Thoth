@@ -163,10 +163,22 @@ export default {
             return this.$store.state.library;
         },
         list() {
+            if (!this.library || typeof this.library.getListById !== 'function') {
+                return { name: '' };
+            }
             return this.library.getListById(this.library.defaultListId);
         },
         isSignedIn() {
             return this.$store.state.loggedIn;
+        },
+    },
+
+    watch: {
+        library(newVal) {
+            if (!newVal) {
+                this.isLoaded = false;
+                this.$router.push('/signin');
+            }
         },
     },
     beforeMount() {

@@ -12,3 +12,6 @@ app.sublime-workspace
 /playwright/.cache/
 *.pyc
 *__pycache__*
+.env
+
+/generated/prisma

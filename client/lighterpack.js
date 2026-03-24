@@ -8,7 +8,7 @@ import store from './store/store';
 import routes from './routes';
 import { selectOnFocus, focusOnCreate, focusOnBus, selectOnBus, emptyIfZero, clickOutside } from './utils/focus.js'; // ← ADD
 
-const dataTypes = require('./dataTypes.js'); // ← REMOVE the focusDirectives require line
+const dataTypes = require('./dataTypes.js');
 const utils = require('./utils/utils.js');
 
 const { Item, Category, List, Library } = dataTypes;
@@ -36,12 +36,12 @@ var initLighterPack = function () {
     const app = createApp(RootApp);
     app.use(store);
     app.use(window.router);
-    app.directive('select-on-focus', selectOnFocus);   // ← ADD
-    app.directive('focus-on-create', focusOnCreate);   // ← ADD
-    app.directive('focus-on-bus', focusOnBus);         // ← ADD
-    app.directive('select-on-bus', selectOnBus);       // ← ADD
-    app.directive('empty-if-zero', emptyIfZero);       // ← ADD
-    app.directive('click-outside', clickOutside);      // ← ADD
+    app.directive('select-on-focus', selectOnFocus);   
+    app.directive('focus-on-create', focusOnCreate);   
+    app.directive('focus-on-bus', focusOnBus);         
+    app.directive('select-on-bus', selectOnBus);       
+    app.directive('empty-if-zero', emptyIfZero);       
+    app.directive('click-outside', clickOutside);      
     app.mount('#lp');
     window.LighterPack = app;
 };

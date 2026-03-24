@@ -4,6 +4,7 @@
   "description": "LighterPack =========== LighterPack is a website to track the gear you take on adventures. It is still in Beta.",
   "main": "app.js",
   "scripts": {
+    "setup": "node setup.js",
     "dev": "NODE_OPTIONS=--openssl-legacy-provider webpack serve --config ./webpack.development.config.js",
     "start": "NODE_OPTIONS=--openssl-legacy-provider webpack --config ./webpack.development.config.js --watch & NODE_OPTIONS=--openssl-legacy-provider node app.js",
     "build": "NODE_OPTIONS=--openssl-legacy-provider webpack-cli --config ./webpack.config.js",
@@ -20,6 +21,7 @@
     "@babel/core": "7.12.10",
     "@babel/polyfill": "7.2.5",
     "@babel/preset-env": "7.12.11",
+    "@prisma/client": "^6.19.2",
     "@vue/compat": "^3.5.30",
     "@vue/compiler-sfc": "^3.5.30",
     "axios": "^1.13.6",
@@ -44,6 +46,7 @@
     "mustache": "^2.2.1",
     "nanoid": "^3.3.11",
     "node.extend": "^1.1.5",
+    "prisma": "^6.19.2",
     "request": "^2.67.0",
     "sass": "1.32.0",
     "sass-loader": "10.1.0",

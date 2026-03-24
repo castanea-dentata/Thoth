@@ -53,9 +53,11 @@ module.exports = {
         ],
     },
     resolve: {},
+    
     devServer: {
         historyApiFallback: true,
         hot: false,
+        liveReload: true,
         devMiddleware: {
             writeToDisk: true,
         },
@@ -63,17 +65,29 @@ module.exports = {
             directory: path.join(__dirname, 'public'),
         },
         port: 8080,
-        proxy: [
-        {
-            context: (pathname) => {
-                return !pathname.startsWith('/dist/');
+        client: {
+            overlay: {
+                errors: true,
+                warnings: false,
+                runtimeErrors: (error) => {
+                    if (error.message === 'ResizeObserver loop completed with undelivered notifications.') {
+                        return false;
+                    }
+                    return true;
+                },
             },
-            target: 'http://localhost:3000',
-            secure: false,
-            changeOrigin: true,
         },
-    ],
-},
+        proxy: [
+            {
+                context: (pathname) => {
+                    return !pathname.startsWith('/dist/');
+                },
+                target: 'http://localhost:3000',
+                secure: false,
+                changeOrigin: true,
+            },
+        ],
+    },
     performance: {
         hints: false,
     },

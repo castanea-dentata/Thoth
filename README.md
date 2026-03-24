@@ -2,6 +2,8 @@ LighterPack
 ===========
 LighterPack helps you track the gear you bring on adventures.
 
+I would not use this currently, many of the packages are out of date, have severe to major security vulnerabilities, and overall the codebase is a mess (because of me). I would run locally only and would not expose to the wider internet in anyway.
+
 How to run Lighterpack
 -----------
 For Production:
