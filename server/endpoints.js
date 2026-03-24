@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const path = require('path');
 const express = require('express');
-const generate = require('nanoid/generate');
+const { customAlphabet } = require('nanoid');
 
 const router = express.Router();
 const fs = require('fs');
@@ -187,7 +187,7 @@ router.post('/externalId', (req, res) => {
 });
 
 function externalId(req, res, user) {
-    const id = generate('1234567890abcdefghijklmnopqrstuvwxyz', 6);
+    const id = generate('1234567890abcdefghijklmnopqrstuvwxyz', 6)();
     logWithRequest(req, { message: 'Id generated', id });
 
     db.users.find({ 'library.lists.externalId': id }, (err, users) => {

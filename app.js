@@ -1,5 +1,3 @@
-const webpack = require('webpack');
-const WebpackDevServer = require('webpack-dev-server');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const compression = require('compression');
@@ -65,14 +63,6 @@ app.use('/', views);
 
 logger.info("Starting up Lighterpack...");
 
-if (config.get('environment') === 'production') {
-    webpackConfig = require('./webpack.config');
-} else {
-    webpackConfig = require('./webpack.development.config');
-}
-
-webpackCompiler = webpack(webpackConfig);
-
 // Default port is 3000; we can have multiple bindings
 config.get('bindings').map(
     (bind) => {
@@ -81,35 +71,3 @@ config.get('bindings').map(
     },
 );
 
-if (config.get('environment') !== 'production') {
-    new WebpackDevServer(webpack(webpackConfig), {
-        historyApiFallback: {
-        index: '/index.html' // Explicitly set the fallback index
-    },
-        disableHostCheck: true,
-        publicPath: webpackConfig.output.publicPath,
-        hot: true,
-        proxy: {
-            '*': {
-                target: `http://localhost:${config.get('port')}`,
-                secure: false,
-                changeOrigin: true,
-            },
-        },
-        stats: {
-            cached: false,
-            cachedAssets: false,
-            colors: { level: 2 },
-        },
-        watchOptions: {
-            aggregateTimeout: 300,
-            poll: 1000,
-        },
-    }).listen(config.get('devServerPort'), (err, result) => {
-        if (err) {
-            return logger.info(err);
-        }
-
-        logger.info(`Webpack dev server listening on port ${config.get('devServerPort')}`);
-    });
-}

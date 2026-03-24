@@ -40,8 +40,9 @@ module.exports = {
         filename: '[name].[chunkhash].js',
     },
     devServer: {
+        hot: false,
         static: {
-            directory: path.join(__dirname, 'public'),
+            directory: path.join(__dirname),
         },
         proxy: [
             {

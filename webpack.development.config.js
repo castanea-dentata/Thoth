@@ -7,19 +7,15 @@ module.exports = {
     entry: {
         app: [
             'whatwg-fetch',
-            'webpack/hot/dev-server',
-            'webpack-dev-server/client?http://local.lighterpack.com:8080/',
             './client/css/lighterpack.scss',
             './client/lighterpack.js',
         ],
         share: [
             './client/css/share.scss',
-            'webpack/hot/dev-server',
-            'webpack-dev-server/client?http://local.lighterpack.com:8080/',
         ],
     },
     output: {
-        path: path.resolve(__dirname, './dist'),
+        path: path.resolve(__dirname, './public/dist'),
         publicPath: '/dist/',
         filename: '[name].js',
     },
@@ -59,9 +55,25 @@ module.exports = {
     resolve: {},
     devServer: {
         historyApiFallback: true,
-        noInfo: true,
-        hot: true,
-    },
+        hot: false,
+        devMiddleware: {
+            writeToDisk: true,
+        },
+        static: {
+            directory: path.join(__dirname, 'public'),
+        },
+        port: 8080,
+        proxy: [
+        {
+            context: (pathname) => {
+                return !pathname.startsWith('/dist/');
+            },
+            target: 'http://localhost:3000',
+            secure: false,
+            changeOrigin: true,
+        },
+    ],
+},
     performance: {
         hints: false,
     },
