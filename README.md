@@ -2,7 +2,7 @@ LighterPack
 ===========
 LighterPack helps you track the gear you bring on adventures.
 
-I would not use this currently, many of the packages are out of date, have severe to major security vulnerabilities, and overall the codebase is a mess (because of me). I would run locally only and would not expose to the wider internet in anyway.
+Under heavy development at the moment, use at your own risk. 
 
 How to run Lighterpack
 -----------
@@ -31,4 +31,13 @@ To-do
 - ~~resolve issues with various outdated npm packages~~ - completed
 - ~~change database from mongodb to postgres~~ - completed
 
+Things to Test
+-----------
+- A properly configured mailgunjs instance for forget password and forget username
+- Upload to imgur function
 
+Operating Systems
+-----------
+Tested to work on:
+- macOS Tahoe 26.3.1(a)
+- Proxmox running a Debian LXC
