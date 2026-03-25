@@ -57,29 +57,27 @@ function checkPostgresRunning() {
 function setupDatabase(dbPassword) {
     console.log('\n🗄️  Setting up database...');
 
+    const isLinux = process.platform === 'linux';
+    const psqlPrefix = isLinux ? 'sudo -u postgres ' : '';
+
     // Create database
     try {
-        run(`createdb ${DB_NAME}`, { silent: true });
+        run(`${psqlPrefix}createdb ${DB_NAME}`, { silent: true });
         console.log(`✅ Database '${DB_NAME}' created.`);
     } catch {
         console.log(`ℹ️  Database '${DB_NAME}' already exists, skipping.`);
     }
 
-    // Create user
-    run(`psql ${DB_NAME} -c "DO $$ BEGIN IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${DB_USER}') THEN CREATE USER ${DB_USER} WITH PASSWORD '${dbPassword}'; END IF; END $$;"`, { ignoreError: true, silent: true });
-
-    // Set password in case user already exists
-    run(`psql ${DB_NAME} -c "ALTER USER ${DB_USER} WITH PASSWORD '${dbPassword}';"`, { ignoreError: true, silent: true });
+    // Create user and set password
+    run(`${psqlPrefix}psql -c "DO \\$\\$ BEGIN IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${DB_USER}') THEN CREATE USER ${DB_USER} WITH PASSWORD '${dbPassword}'; ELSE ALTER USER ${DB_USER} WITH PASSWORD '${dbPassword}'; END IF; END \\$\\$;"`, { ignoreError: true, silent: true });
 
     // Grant database privileges
-    run(`psql postgres -c "GRANT ALL PRIVILEGES ON DATABASE ${DB_NAME} TO ${DB_USER};"`, { ignoreError: true, silent: true });
-
-    // Change database owner
-    run(`psql postgres -c "ALTER DATABASE ${DB_NAME} OWNER TO ${DB_USER};"`, { ignoreError: true, silent: true });
+    run(`${psqlPrefix}psql -c "GRANT ALL PRIVILEGES ON DATABASE ${DB_NAME} TO ${DB_USER};"`, { ignoreError: true, silent: true });
+    run(`${psqlPrefix}psql -c "ALTER DATABASE ${DB_NAME} OWNER TO ${DB_USER};"`, { ignoreError: true, silent: true });
 
     // Grant schema permissions
-    run(`psql ${DB_NAME} -c "GRANT ALL ON SCHEMA public TO ${DB_USER};"`, { ignoreError: true, silent: true });
-    run(`psql ${DB_NAME} -c "ALTER SCHEMA public OWNER TO ${DB_USER};"`, { ignoreError: true, silent: true });
+    run(`${psqlPrefix}psql -d ${DB_NAME} -c "GRANT ALL ON SCHEMA public TO ${DB_USER};"`, { ignoreError: true, silent: true });
+    run(`${psqlPrefix}psql -d ${DB_NAME} -c "ALTER SCHEMA public OWNER TO ${DB_USER};"`, { ignoreError: true, silent: true });
 
     console.log(`✅ Database user '${DB_USER}' configured.`);
 }
