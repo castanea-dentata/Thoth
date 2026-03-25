@@ -27,8 +27,8 @@ To-do
 -----------
 - migrate from vue2 to vue3 - partially completed
 - migrate from webpack to vite
-- resolve issues with various outdated npm packages - in progress
-- change database from mongodb to postgres - in progress
 - migrate from vuex to pinia
+- ~~resolve issues with various outdated npm packages~~ - completed
+- ~~change database from mongodb to postgres~~ - completed
 
 
