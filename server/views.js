@@ -1,4 +1,3 @@
-const Vue = require('vue');
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
@@ -8,23 +7,17 @@ const Mustache = require('mustache');
 const extend = require('node.extend');
 const markdown = require('markdown').markdown;
 const config = require('config');
-const mongojs = require('mongojs');
 const { logWithRequest, logger } = require('./log.js');
-
-const collections = ['users', 'libraries'];
-const db = mongojs(config.get('databaseUrl'), collections);
+const prisma = require('./prisma.js');
 
 const weightUtils = require('../client/utils/weight.js');
 const dataTypes = require('../client/dataTypes.js');
 
-const Item = dataTypes.Item;
-const Category = dataTypes.Category;
-const List = dataTypes.List;
 const Library = dataTypes.Library;
 
 const templates = {};
 
-const vueRoutes = [ /* TODO - get this from same data source as Vue */
+const vueRoutes = [
     { path: '/' },
     { path: '/signin' },
     { path: '/signin/reset-password' },
@@ -82,31 +75,38 @@ for (let i = 0; i < vueRoutes.length; i++) {
     });
 }
 
-router.get('/r/:id', (req, res) => {
+router.get('/r/:id', async (req, res) => {
     const id = req.params.id;
-
     if (!id) {
         res.status(400).send('No list specified!');
         return;
     }
-    db.users.find({ 'library.lists.externalId': id }, (err, users) => {
-        if (err) {
-            res.status(500).send('An error occurred.');
-            return;
-        }
+
+    try {
+        const users = await prisma.user.findMany({
+            where: {
+                library: {
+                    path: ['lists'],
+                    array_contains: [{ externalId: id }],
+                },
+            },
+        });
+
         if (!users.length) {
             res.status(400).send('Invalid list specified.');
             return;
         }
-        const library = new Library();
-        let list;
 
-        if (!users[0] || typeof (users[0].library) === 'undefined') {
+        if (!users[0] || typeof users[0].library === 'undefined') {
             logWithRequest(req, `Undefined users[0] for library with list ID ${id}`);
             res.status(500).send('Unknown error.');
+            return;
         }
 
+        const library = new Library();
         library.load(users[0].library);
+        let list;
+
         for (const i in library.lists) {
             if (library.lists[i].externalId && library.lists[i].externalId == id) {
                 library.defaultListId = library.lists[i].id;
@@ -139,37 +139,44 @@ router.get('/r/:id', (req, res) => {
 
         model = extend(model, templates);
         res.send(Mustache.render(shareTemplate, model));
-    });
+    } catch (err) {
+        logWithRequest(req, err);
+        res.status(500).send('An error occurred.');
+    }
 });
 
-router.get('/e/:id', (req, res) => {
+router.get('/e/:id', async (req, res) => {
     const id = req.params.id;
-
     if (!id) {
         res.status(400).send('No list specified!');
         return;
     }
 
-    db.users.find({ 'library.lists.externalId': id }, (err, users) => {
-        if (err) {
-            res.status(500).send('An error occurred.');
-            return;
-        }
+    try {
+        const users = await prisma.user.findMany({
+            where: {
+                library: {
+                    path: ['lists'],
+                    array_contains: [{ externalId: id }],
+                },
+            },
+        });
 
         if (!users.length) {
             res.status(400).send('Invalid list specified.');
             return;
         }
 
-        const library = new Library();
-        let list;
-
-        if (!users[0] || typeof (users[0].library) === 'undefined') {
+        if (!users[0] || typeof users[0].library === 'undefined') {
             logWithRequest(req, `Undefined users[0] for library with list ID ${id}`);
             res.status(500).send('Unknown error.');
+            return;
         }
 
+        const library = new Library();
         library.load(users[0].library);
+        let list;
+
         for (const i in library.lists) {
             if (library.lists[i].externalId && library.lists[i].externalId == id) {
                 library.defaultListId = library.lists[i].id;
@@ -179,7 +186,6 @@ router.get('/e/:id', (req, res) => {
         }
 
         const chartData = escape(JSON.stringify(list.renderChart('total', false)));
-
         const renderedCategories = renderLibrary(library, {
             itemTemplate: templates.t_itemShare,
             categoryTemplate: templates.t_categoryShare,
@@ -206,22 +212,28 @@ router.get('/e/:id', (req, res) => {
         model = extend(model, templates);
         model.renderedTemplate = escape(Mustache.render(embedTemplate, model));
         res.send(Mustache.render(embedJTemplate, model));
-    });
+    } catch (err) {
+        logWithRequest(req, err);
+        res.status(500).send('An error occurred.');
+    }
 });
 
-router.get('/csv/:id', (req, res) => {
+router.get('/csv/:id', async (req, res) => {
     const id = req.params.id;
-
     if (!id) {
         res.status(400).send('No list specified!');
         return;
     }
 
-    db.users.find({ 'library.lists.externalId': id }, (err, users) => {
-        if (err) {
-            res.status(500).send('An error occurred.');
-            return;
-        }
+    try {
+        const users = await prisma.user.findMany({
+            where: {
+                library: {
+                    path: ['lists'],
+                    array_contains: [{ externalId: id }],
+                },
+            },
+        });
 
         if (!users.length) {
             res.status(400).send('Invalid list specified.');
@@ -229,15 +241,10 @@ router.get('/csv/:id', (req, res) => {
         }
 
         const library = new Library();
+        library.load(users[0].library);
         let list;
 
-        if (!users[0] || typeof (users[0].library) === 'undefined') {
-            logWithRequest(req, `Undefined users[0] for library with list ID ${id}`);
-            res.status(500).send('Unknown error.');
-        }
-
-        library.load(users[0].library);
-        for (var i in library.lists) {
+        for (const i in library.lists) {
             if (library.lists[i].externalId && library.lists[i].externalId == id) {
                 library.defaultListId = library.lists[i].id;
                 list = library.lists[i];
@@ -250,15 +257,13 @@ router.get('/csv/:id', (req, res) => {
         };
         let out = 'Item Name,Category,desc,qty,weight,unit,url,price,worn,consumable\n';
 
-        for (var i in list.categoryIds) {
+        for (const i in list.categoryIds) {
             const category = library.getCategoryById(list.categoryIds[i]);
             if (category) {
                 for (const j in category.categoryItems) {
                     const categoryItem = category.categoryItems[j];
-
                     if (categoryItem) {
                         const item = library.getItemById(categoryItem.itemId);
-
                         const itemRow = [item.name];
                         itemRow.push(category.name);
                         itemRow.push(item.description);
@@ -273,7 +278,7 @@ router.get('/csv/:id', (req, res) => {
                         for (const k in itemRow) {
                             const field = itemRow[k];
                             if (k > 0) out += ',';
-                            if (typeof (field) === 'string') {
+                            if (typeof field === 'string') {
                                 if (field.indexOf(',') > -1) out += `"${field.replace(/\"/g, '""')}"`;
                                 else out += field;
                             } else out += field;
@@ -291,7 +296,10 @@ router.get('/csv/:id', (req, res) => {
         res.setHeader('Content-Type', 'text/csv');
         res.setHeader('Content-Disposition', `attachment;filename=${filename}.csv`);
         res.send(out);
-    });
+    } catch (err) {
+        logWithRequest(req, err);
+        res.status(500).send('An error occurred.');
+    }
 });
 
 function init() {
@@ -332,7 +340,6 @@ function init() {
             }
         });
 
-        // fs.writeFile(filePath, data, function(err) {
         logger.info('views init complete.');
     });
 }
@@ -346,16 +353,15 @@ const renderItem = function (item, args) {
     if (args.unit) unit = args.unit;
 
     const displayWeight = weightUtils.MgToWeight(item.weight, unit);
-
     const displayPrice = item.price ? item.price.toFixed(2) : '0.00';
-
     const unitSelect = renderUnitSelect(unit, args.unitSelectTemplate, item.weight);
-
     const starClass = item.star ? `lpStar${item.star}` : '';
-    const out = {
-        classes, unit, displayWeight, unitSelect, showImages: args.showImages, showPrices: args.showPrices, starClass, displayPrice, currencySymbol: args.currencySymbol,
-    };
-    Vue.util.extend(out, item);
+
+    const out = Object.assign({}, item, {
+        classes, unit, displayWeight, unitSelect,
+        showImages: args.showImages, showPrices: args.showPrices,
+        starClass, displayPrice, currencySymbol: args.currencySymbol,
+    });
 
     return Mustache.render(args.itemTemplate, out);
 };
@@ -365,16 +371,18 @@ const renderCategory = function (category, args) {
     for (const i in category.categoryItems) {
         const categoryItem = category.categoryItems[i];
         const item = category.library.getItemById(categoryItem.itemId);
-        extend(item, categoryItem);
-        items += renderItem(item, args);
+        const mergedItem = Object.assign({}, item, categoryItem);
+        items += renderItem(mergedItem, args);
     }
 
     category.calculateSubtotal();
     category.subtotalWeightDisplay = weightUtils.MgToWeight(category.subtotalWeight, args.totalUnit);
     category.subtotalPriceDisplay = category.subtotalPrice ? category.subtotalPrice.toFixed(2) : '0.00';
-    let temp = Vue.util.extend({}, category);
-    temp = Vue.util.extend(temp, {
-        items, subtotalUnit: args.totalUnit, currencySymbol: args.currencySymbol, showPrices: args.showPrices,
+
+    const temp = Object.assign({}, category, {
+        items, subtotalUnit: args.totalUnit,
+        currencySymbol: args.currencySymbol,
+        showPrices: args.showPrices,
     });
 
     return Mustache.render(args.categoryTemplate, temp);
@@ -391,8 +399,8 @@ const renderList = function (list, args) {
     return out;
 };
 
-var renderLibrary = function (library, args) {
-    Vue.util.extend(args, { itemUnit: library.itemUnit, totalUnit: library.totalUnit });
+const renderLibrary = function (library, args) {
+    Object.assign(args, { itemUnit: library.itemUnit, totalUnit: library.totalUnit });
     return renderList(library.getListById(library.defaultListId), args);
 };
 
@@ -408,12 +416,10 @@ const renderListTotals = function (list, totalsTemplate, unitSelectTemplate, uni
 
     for (const i in list.categoryIds) {
         const category = list.library.getCategoryById(list.categoryIds[i]);
-
         if (category) {
             category.calculateSubtotal();
             category.subtotalWeightDisplay = weightUtils.MgToWeight(category.subtotalWeight, unit);
             category.subtotalUnit = unit;
-
             totalWeight += category.subtotalWeight;
             totalPrice += category.subtotalPrice;
             totalWornWeight += category.subtotalWornWeight;
@@ -448,12 +454,21 @@ const renderListTotals = function (list, totalsTemplate, unitSelectTemplate, uni
     return Mustache.render(totalsTemplate, out);
 };
 
-var renderLibraryTotals = function (library, totalsTemplate, unitSelectTemplate) {
+const renderLibraryTotals = function (library, totalsTemplate, unitSelectTemplate) {
     return renderListTotals(library.getListById(library.defaultListId), totalsTemplate, unitSelectTemplate, library.totalUnit);
 };
 
 function renderUnitSelect(unit, unitSelectTemplate, weight) {
-    const temp = { unit, units: [{ unit: 'oz', selected: (unit == 'oz') }, { unit: 'lb', selected: (unit == 'lb') }, { unit: 'g', selected: (unit == 'g') }, { unit: 'kg', selected: (unit == 'kg') }], weight };
+    const temp = {
+        unit,
+        units: [
+            { unit: 'oz', selected: (unit == 'oz') },
+            { unit: 'lb', selected: (unit == 'lb') },
+            { unit: 'g', selected: (unit == 'g') },
+            { unit: 'kg', selected: (unit == 'kg') },
+        ],
+        weight,
+    };
     return Mustache.render(unitSelectTemplate, temp);
 }
 
