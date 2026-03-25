@@ -40,18 +40,29 @@ module.exports = {
             {
                 test: /\.scss$/,
                 use: [
-                    'vue-style-loader',
-                    'css-loader',
+                    'vue-style-loader', // or MiniCssExtractPlugin.loader for production
                     {
-                        loader: 'sass-loader',
+                        loader: 'css-loader',
                         options: {
-                            implementation: require('sass'),
+                        url: {
+                            filter: (url) => {
+                                // Don't resolve absolute URLs starting with /
+                                if (url.startsWith('/')) return false;
+                                return true;
+                            },
                         },
                     },
-                ],
-            },
-        ],
-    },
+                },
+                {
+                    loader: 'sass-loader',
+                    options: {
+                        implementation: require('sass'),
+                    },
+                },
+            ],
+        },
+    ],
+},
     resolve: {},
     
     devServer: {

@@ -4,19 +4,23 @@ const path = require('path');
 const express = require('express');
 const { customAlphabet } = require('nanoid');
 const fs = require('fs');
-const request = require('request');
 const formidable = require('formidable');
 const config = require('config');
 const { logWithRequest } = require('./log.js');
 const prisma = require('./prisma.js');
-
 const { authenticateUser, verifyPassword } = require('./auth.js');
-
 const router = express.Router();
+const FormData = require('form-data');
+const Mailgun = require('mailgun.js');
 
 let mailgun;
 if (config.get('mailgunAPIKey')) {
-    mailgun = require('mailgun-js')({ apiKey: config.get('mailgunAPIKey'), domain: config.get('mailgunDomain') });
+    const mailgunClient = new Mailgun(FormData);
+    mailgun = mailgunClient.client({
+        username: 'api',
+        key: config.get('mailgunAPIKey'),
+        url: config.get('mailgunBaseURL') || 'https://api.mailgun.net',
+    });
 }
 
 const dataTypes = require('../client/dataTypes.js');
@@ -227,46 +231,48 @@ async function externalId(req, res, user) {
 }
 
 router.post('/forgotPassword', async (req, res) => {
-    const email = String(req.body.email).toLowerCase().trim();
-    if (!email || email.length < 1) {
-        return res.status(400).json({ errors: [{ message: 'Please enter a valid email.' }] });
+    const username = String(req.body.username).toLowerCase().trim();
+    if (!username || username.length < 1) {
+        return res.status(400).json({ errors: [{ message: 'Please enter a valid username.' }] });
     }
 
     try {
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await prisma.user.findUnique({ where: { username } });
         if (!user) {
             return res.status(400).json({ errors: [{ message: 'An error occurred' }] });
         }
 
-        const username = user.username;
+        const email = user.email;
         const newPassword = Math.random().toString(36).slice(-8);
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(newPassword, salt);
 
         const message = `Hello ${username},\n Apparently you forgot your password. Here's your new one: \n\n Username: ${username}\n Password: ${newPassword}\n\n If you continue to have problems, please reply to this email with details.\n\n Thanks!`;
 
-        const mailOptions = {
-            from: 'LighterPack <info@mg.lighterpack.com>',
-            to: email,
-            'h:Reply-To': 'LighterPack <info@lighterpack.com>',
-            subject: 'Your new LighterPack password',
-            text: message,
-        };
+        logWithRequest(req, { message: 'Attempting to send new password', username });
 
-        logWithRequest(req, { message: 'Attempting to send new password', email });
-        mailgun.messages().send(mailOptions, async (error, response) => {
-            if (error) {
-                logWithRequest(req, error);
-                return res.status(500).json({ message: 'An error occurred' });
-            }
-            await prisma.user.update({
-                where: { username },
-                data: { password: hash },
-            });
-            logWithRequest(req, { message: 'password changed for user', username });
-            return res.status(200).json({ username });
+        if (!mailgun) {
+            logWithRequest(req, { message: 'Mailgun not configured', username });
+            return res.status(500).json({ message: 'Email service not configured. Please contact the administrator.' });
+        }
+        
+        await mailgun.messages.create(config.get('mailgunDomain'), {
+            from: 'Thoth <info@mg.lighterpack.com>',
+            to: [email],
+            'h:Reply-To': 'Thoth <info@lighterpack.com>',
+            subject: 'Your new Thoth password',
+            text: message,
         });
+
+        await prisma.user.update({
+            where: { username },
+            data: { password: hash },
+        });
+
+        logWithRequest(req, { message: 'password changed for user', username });
+        return res.status(200).json({ username });
     } catch (err) {
+        logWithRequest(req, err);
         return res.status(500).json({ message: 'An error occurred' });
     }
 });
@@ -286,24 +292,25 @@ router.post('/forgotUsername', async (req, res) => {
         const username = user.username;
         const message = `Hello ${username},\n Apparently you forgot your username. Here it is: \n\n Username: ${username}\n\n If you continue to have problems, please reply to this email with details.\n\n Thanks!`;
 
-        const mailOptions = {
-            from: 'LighterPack <info@mg.lighterpack.com>',
-            to: email,
-            'h:Reply-To': 'LighterPack <info@lighterpack.com>',
-            subject: 'Your LighterPack username',
-            text: message,
-        };
-
         logWithRequest(req, { message: 'Attempting to send username', email, username });
-        mailgun.messages().send(mailOptions, (error, response) => {
-            if (error) {
-                logWithRequest(req, error);
-                return res.status(500).json({ message: 'An error occurred' });
-            }
-            logWithRequest(req, { message: 'sent username message for user', username, email });
-            return res.status(200).json({ email });
+
+        if (!mailgun) {
+            logWithRequest(req, { message: 'Mailgun not configured', username });
+            return res.status(500).json({ message: 'Email service not configured. Please contact the administrator.' });
+        }
+
+        await mailgun.messages.create(config.get('mailgunDomain'), {
+            from: 'Thoth <info@mg.lighterpack.com>',
+            to: [email],
+            'h:Reply-To': 'Thoth <info@lighterpack.com>',
+            subject: 'Your Thoth username',
+            text: message,
         });
+
+        logWithRequest(req, { message: 'sent username message for user', username, email });
+        return res.status(200).json({ email });
     } catch (err) {
+        logWithRequest(req, err);
         return res.status(500).json({ message: 'An error occurred' });
     }
 });
@@ -381,9 +388,9 @@ router.post('/imageUpload', (req, res) => {
     imageUpload(req, res, {});
 });
 
-function imageUpload(req, res, user) {
+async function imageUpload(req, res, user) {
     const form = new formidable.IncomingForm();
-    form.parse(req, (err, fields, files) => {
+    form.parse(req, async (err, fields, files) => {
         if (err) {
             logWithRequest(req, 'form parse error');
             return res.status(500).json({ message: 'An error occurred' });
@@ -393,28 +400,31 @@ function imageUpload(req, res, user) {
             return res.status(500).json({ message: 'An error occurred' });
         }
 
-        const path = files.image.path;
-        const formData = {
-            image: fs.createReadStream(path),
-            type: 'file',
-        };
-        request.post({
-            url: 'https://api.imgur.com/3/image',
-            headers: { Authorization: `Client-ID ${config.get('imgurClientID')}` },
-            formData,
-        }, (e, r, body) => {
-            if (e) {
+        try {
+            const imagePath = files.image.path;
+            const formData = new FormData();
+            formData.append('image', fs.createReadStream(imagePath));
+            formData.append('type', 'file');
+
+            const response = await fetch('https://api.imgur.com/3/image', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Client-ID ${config.get('imgurClientID')}`,
+                },
+                body: formData,
+            });
+
+            if (!response.ok) {
                 logWithRequest(req, 'imgur post fail!');
                 return res.status(500).json({ message: 'An error occurred.' });
-            } if (!body) {
-                logWithRequest(req, 'imgur post fail!!');
-                return res.status(500).json({ message: 'An error occurred.' });
-            } if (r.statusCode !== 200 || body.error) {
-                logWithRequest(req, 'imgur post fail!!!');
-                return res.status(500).json({ message: 'An error occurred.' });
             }
+
+            const body = await response.json();
             return res.send(body);
-        });
+        } catch (e) {
+            logWithRequest(req, 'imgur post fail!');
+            return res.status(500).json({ message: 'An error occurred.' });
+        }
     });
 }
 

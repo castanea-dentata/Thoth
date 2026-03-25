@@ -84,7 +84,17 @@ module.exports = {
                     {
                         loader: MiniCssExtractPlugin.loader,
                     },
-                    'css-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            url: {
+                                filter: (url) => {
+                                    if (url.startsWith('/')) return false;
+                                    return true;
+                                },
+                            },
+                        },
+                    },
                     {
                         loader: 'sass-loader',
                         options: {

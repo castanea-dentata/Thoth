@@ -5,7 +5,7 @@ import bus from '../bus.js';
 import weightUtils from '../utils/weight.js';
 import { Item, Category, List, Library } from '../dataTypes.js';
 
-const saveInterval = 10000;
+const saveInterval = 1000;
 
 const store = new createStore({
     state: {
