@@ -62,7 +62,7 @@ module.exports = {
                 loader: 'vue-loader',
                 options: {
                     compilerOptions: {
-                        MODE: 2
+                        MODE: 3
                     }
                 }
             },
@@ -105,12 +105,7 @@ module.exports = {
             },
         ],
     },
-    resolve: {
-        alias: {
-            'vue': '@vue/compat'
-        },
-        extensions: ['.js', '.vue', '.json']
-    },
+    
     devtool: false,
     plugins: [
         new VueLoaderPlugin(),
