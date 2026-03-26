@@ -19,7 +19,6 @@
   "license": "GPL-2.0",
   "dependencies": {
     "@babel/core": "^7.29.0",
-    "@babel/polyfill": "7.2.5",
     "@babel/preset-env": "^7.29.2",
     "@prisma/client": "^6.12.0",
     "@vue/compat": "^3.5.31",
@@ -61,7 +60,7 @@
   "devDependencies": {
     "@playwright/test": "^1.48.1",
     "@types/node": "^22.7.9",
-    "eslint": "^10.1.0",
+    "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-vue": "^10.8.0",
