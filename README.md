@@ -36,12 +36,13 @@ To-do
 - migrate from webpack to vite
 - migrate from vuex to pinia
 - ~~resolve issues with various outdated npm packages~~ - completed
+    - all security vulnerabilities from npm audit are fixed, still upgrading outdated packages.
 - ~~change database from mongodb to postgres~~ - completed
+- implement a local image upload feature instead of using imgur, imgur uploads do not function, and the feature will not work.
 
 Things to Test
 -----------
 - A properly configured mailgunjs instance for forget password and forget username
-- Upload to imgur function
 
 Operating Systems
 -----------

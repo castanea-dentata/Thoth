@@ -3,8 +3,6 @@ const crypto = require('crypto');
 const path = require('path');
 const express = require('express');
 const { customAlphabet } = require('nanoid');
-const fs = require('fs');
-const formidable = require('formidable');
 const config = require('config');
 const { logWithRequest } = require('./log.js');
 const prisma = require('./prisma.js');
@@ -12,6 +10,7 @@ const { authenticateUser, verifyPassword } = require('./auth.js');
 const router = express.Router();
 const FormData = require('form-data');
 const Mailgun = require('mailgun.js');
+const fs = require('fs');
 
 let mailgun;
 if (config.get('mailgunAPIKey')) {
@@ -385,7 +384,7 @@ async function deleteAccount(req, res, user) {
 }
 
 router.post('/imageUpload', (req, res) => {
-    imageUpload(req, res, {});
+    return res.status(501).json({ message: 'Image upload is not currently supported.' });
 });
 
 async function imageUpload(req, res, user) {
