@@ -23,6 +23,7 @@
 <script>
 import modal from './modal.vue';
 import bus from '../bus.js';
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'CopyList',
@@ -36,8 +37,11 @@ export default {
         };
     },
     computed: {
+        store() {
+            return useLibraryStore();
+        },
         library() {
-            return this.$store.state.library;
+            return this.store.library;
         },
     },
     beforeMount() {
@@ -50,7 +54,7 @@ export default {
             if (!this.listId) {
                 return; // TODO: errors
             }
-            this.$store.commit('copyList', this.listId);
+            this.store.copyList(this.listId);
             this.shown = false;
         },
     },

@@ -116,6 +116,7 @@
 import PopoverHover from './popover-hover.vue';
 import bus from '../bus.js';
 import dragula from 'dragula';
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'LibraryList',
@@ -129,8 +130,11 @@ export default {
     },
     props: ['list'],
     computed: {
+        store() {
+            return useLibraryStore();
+        },
         library() {
-            return this.$store.state.library;
+            return this.store.library;
         },
     },
     mounted() {
@@ -141,10 +145,10 @@ export default {
             return list.name || 'New list';
         },
         setDefaultList(list) {
-            this.$store.commit('setDefaultList', list);
+            this.store.setDefaultList(list);
         },
         newList() {
-            this.$store.commit('newList');
+            this.store.newList();
         },
         copyList() {
             bus.emit('copyList');
@@ -163,13 +167,13 @@ export default {
                 this.dragStartIndex = getElementIndex($el);
             });
             drake.on('drop', ($el, $target, $source, $sibling) => {
-                this.$store.commit('reorderList', { before: this.dragStartIndex, after: getElementIndex($el) });
+                this.store.reorderList({ before: this.dragStartIndex, after: getElementIndex($el) });
                 drake.cancel(true);
             });
         },
         removeList(list) {
             const callback = () => {
-                this.$store.commit('removeList', list);
+                this.store.removeList(list);
             };
             const speedbumpOptions = {
                 body: 'Are you sure you want to delete this list? This cannot be undone.',

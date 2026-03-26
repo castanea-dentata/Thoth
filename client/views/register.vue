@@ -31,6 +31,7 @@ import blackoutFooter from '../components/blackout-footer.vue';
 import globalAlerts from '../components/global-alerts.vue';
 import modal from '../components/modal.vue';
 import registerForm from '../components/register-form.vue';
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'Register',
@@ -42,8 +43,11 @@ export default {
     },
 
     computed: {
+        store() {
+            return useLibraryStore();
+        },
         isLocalSaving() {
-            return this.$store.state.saveType === 'local';
+            return this.store.saveType === 'local';
         },
     },
 };

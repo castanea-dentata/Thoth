@@ -154,6 +154,7 @@ import blackoutFooter from '../components/blackout-footer.vue';
 import globalAlerts from '../components/global-alerts.vue';
 import registerForm from '../components/register-form.vue';
 import SigninForm from '../components/signin-form.vue';
+import { useLibraryStore} from '../store/useLibraryStore.js';
 
 export default {
     name: 'Welcome',
@@ -163,9 +164,14 @@ export default {
         registerForm,
         SigninForm,
     },
+    computed: {
+        store() {
+            return useLibraryStore();
+        },
+    },
     beforeMount() {
-        if (this.$store.state.library) {
-            router.push('/');
+        if (this.store.library) {
+            this.$router.push('/');
         }
     },
 };

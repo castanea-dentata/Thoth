@@ -65,6 +65,7 @@
 <script>
 import PopoverHover from './popover-hover.vue';
 import bus from '../bus.js';
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'ListSettings',
@@ -102,11 +103,14 @@ export default {
         };
     },
     computed: {
+        store() {
+            return useLibraryStore();
+        },
         library() {
-            return this.$store.state.library;
+            return this.store.library;
         },
         isSignedIn() {
-            return this.$store.state.loggedIn;
+            return this.store.loggedIn;
         },
     },
     beforeMount() {
@@ -119,10 +123,10 @@ export default {
     },
     methods: {
         toggleOptionalField(evt, optionalField) {
-            this.$store.commit('toggleOptionalField', optionalField);
+            this.store.toggleOptionalField(optionalField);
         },
         updateCurrencySymbol(evt) {
-            this.$store.commit('updateCurrencySymbol', evt.target.value);
+            this.store.updateCurrencySymbol(evt.target.value);
         },
         updateOptionalFieldValues() {
             let i;

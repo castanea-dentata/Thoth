@@ -48,6 +48,7 @@
 <script>
 import modal from './modal.vue';
 import bus from '../bus.js';
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'ImportCsv',
@@ -66,8 +67,11 @@ export default {
         };
     },
     computed: {
+        store() {
+            return useLibraryStore();
+        },
         library() {
-            return this.$store.state.library;
+            return this.store.library;
         },
     },
     mounted() {
@@ -164,7 +168,7 @@ export default {
             }
         },
         importList() {
-            this.$store.commit('importCSV', this.importData);
+            this.store.importCSV(this.importData);
             this.shown = false;
         },
 

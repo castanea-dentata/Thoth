@@ -27,6 +27,7 @@
 import errors from './errors.vue';
 import spinner from './spinner.vue';
 import bus from '../bus.js';
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'SigninForm',
@@ -35,6 +36,11 @@ export default {
         spinner,
     },
     props: ['message'],
+    computed: {
+        store() {
+            return useLibraryStore();
+        },
+    },
     data() {
         return {
             fetching: false,
@@ -70,10 +76,10 @@ export default {
                 body: JSON.stringify({ username: this.username, password: this.password }),
             })
                 .then((response) => {
-                    this.$store.commit('setSyncToken', response.syncToken);
-                    this.$store.commit('loadLibraryData', response.library);
-                    this.$store.commit('setSaveType', 'remote');
-                    this.$store.commit('setLoggedIn', response.username);
+                    this.store.setSyncToken(response.syncToken);
+                    this.store.loadLibraryData(response.library);
+                    this.store.setSaveType('remote');
+                    this.store.setLoggedIn(response.username);
                     this.$router.push('/');
                     this.fetching = false;
                 })

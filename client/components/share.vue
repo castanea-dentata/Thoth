@@ -30,6 +30,7 @@
 <script>
 import PopoverHover from './popover-hover.vue';
 import bus from '../bus.js'
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'Share',
@@ -37,14 +38,17 @@ export default {
         PopoverHover,
     },
     computed: {
+        store() {
+            return useLibraryStore();
+        },
         library() {
-            return this.$store.state.library;
+            return this.store.library;
         },
         list() {
             return this.library.getListById(this.library.defaultListId);
         },
         isSignedIn() {
-            return this.$store.state.loggedIn;
+            return this.store.loggedIn;
         },
         externalId() {
             return this.list.externalId || '';
@@ -77,7 +81,7 @@ export default {
                     credentials: 'same-origin',
                 })
                     .then((response) => {
-                        this.$store.commit('setExternalId', { externalId: response.externalId, list: this.list });
+                        this.store.setExternalId({ externalId: response.externalId, list: this.list });
                         setTimeout(() => {
                             bus.emit('show-share-box');
                         }, 0);

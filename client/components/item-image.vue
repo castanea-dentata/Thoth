@@ -45,6 +45,7 @@
 <script>
 import modal from './modal.vue';
 import bus from '../bus.js';
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'ItemImage',
@@ -68,7 +69,7 @@ export default {
     },
     methods: {
         saveImageUrl() {
-            this.$store.commit('updateItemImageUrl', { imageUrl: this.imageUrl, item: this.item });
+            this.store.updateItemImageUrl({ imageUrl: this.imageUrl, item: this.item });
             this.shown = false;
         },
         triggerImageUpload() {
@@ -106,7 +107,7 @@ export default {
             })
                 .then((response) => {
                     this.uploading = false;
-                    this.$store.commit('updateItemImage', { image: response.data.id, item: this.item });
+                    this.store.updateItemImage({ image: response.data.id, item: this.item });
                     this.shown = false;
                 }).catch((response) => {
                     this.uploading = false;
@@ -114,7 +115,7 @@ export default {
                 });
         },
         removeItemImage() {
-            this.$store.commit('removeItemImage', this.item);
+            this.store.removeItemImage(this.item);
             this.item.image = '';
         },
     },

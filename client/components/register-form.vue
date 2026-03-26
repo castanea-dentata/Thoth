@@ -26,6 +26,7 @@ import errors from './errors.vue';
 import spinner from './spinner.vue';
 
 import { Item, Category, List, Library } from '../dataTypes.js';
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'RegisterForm',
@@ -44,8 +45,11 @@ export default {
         };
     },
     computed: {
+        store() {
+            return useLibraryStore();
+        },
         isLocalSaving() {
-            return this.$store.state.saveType === 'local';
+            return this.store.saveType === 'local';
         },
     },
     methods: {
@@ -55,9 +59,9 @@ export default {
                 return;
             }
             const library = new Library();
-            this.$store.commit('loadLibraryData', JSON.stringify(library.save()));
-            this.$store.commit('setSaveType', 'local');
-            this.$store.commit('setLoggedIn', false);
+            this.store.loadLibraryData(JSON.stringify(library.save()));
+            this.store.setSaveType('local');
+            this.store.setLoggedIn(false);
             this.$router.push('/');
         },
         submit() {
@@ -111,10 +115,10 @@ export default {
                 body: JSON.stringify(registerData),
             })
                 .then((response) => {
-                    this.$store.commit('setSyncToken', response.syncToken);
-                    this.$store.commit('loadLibraryData', response.library);
-                    this.$store.commit('setSaveType', 'remote');
-                    this.$store.commit('setLoggedIn', response.username);
+                    this.store.setSyncToken(response.syncToken);
+                    this.store.loadLibraryData(response.library);
+                    this.store.setSaveType('remote');
+                    this.store.setLoggedIn(response.username);
 
                     if (registerData.library) {
                         localStorage.registeredLibrary = localStorage.library;

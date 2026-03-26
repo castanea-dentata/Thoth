@@ -24,6 +24,7 @@
 <script>
 import PopoverHover from './popover-hover.vue';
 import bus from '../bus.js';
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'AccountDropdown',
@@ -31,11 +32,14 @@ export default {
         PopoverHover,
     },
     computed: {
+        store() {
+            return useLibraryStore();
+        },
         library() {
-            return this.$store.state.library;
+            return this.store.library;
         },
         username() {
-            return this.$store.state.loggedIn;
+            return this.store.loggedIn;
         },
     },
     methods: {
@@ -46,7 +50,7 @@ export default {
             bus.emit('showHelp');
         },
         signout() {
-            this.$store.commit('signout');
+            this.store.signout();
             this.$router.push('/signin');
         },
     },

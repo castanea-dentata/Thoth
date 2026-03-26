@@ -122,6 +122,7 @@ import { nextTick } from 'vue';
 import utilsMixin from '../mixins/utils-mixin.js';
 import bus from '../bus.js';
 import dragula from 'dragula';
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'LibraryItem',
@@ -135,8 +136,11 @@ export default {
         };
     },
     computed: {
+        store() {
+            return useLibraryStore();
+        },
         library() {
-            return this.$store.state.library;
+            return this.store.library;
         },
         filteredItems() {
             let i;
@@ -216,14 +220,14 @@ export default {
                     return;
                 }
                 const categoryId = parseInt($target.parentElement.id); // fragile
-                this.$store.commit('addItemToCategory', { itemId: this.itemDragId, categoryId, dropIndex: getElementIndex($el) - 1 });
+                this.store.addItemToCategory({ itemId: this.itemDragId, categoryId, dropIndex: getElementIndex($el) - 1 });
                 drake.cancel(true);
             });
             this.drake = drake;
         },
         removeItem(item) {
             const callback = () => {
-                this.$store.commit('removeItem', item);
+                this.store.removeItem(item);
             };
             const speedbumpOptions = {
                 body: 'Are you sure you want to delete this item? This cannot be undone.',

@@ -89,7 +89,6 @@
 </template>
 
 <script>
-import debounce from 'lodash/debounce';
 import unitSelect from './unit-select.vue';
 import { nextTick } from 'vue';
 import utilsMixin from '../mixins/utils-mixin.js';
@@ -123,19 +122,20 @@ export default {
             return this.store.library;
         },
         item() {
-            const itemId = this.itemContainer.item.id;
-            if (!this.store.library || itemId === undefined) {
+            if (!this.store.library || this.itemId === undefined) {
+                return {}; 
+            }
+            const storeItem = this.store.library.getItemById(this.itemId);
+            if (!storeItem) {
                 return {};
             }
-            return this.store.library.getItemById(itemId) || {};
+            return { ...storeItem };
         },
         categoryItem() {
-            const itemId = this.itemContainer.item.id;
-            if (!this.category || !this.category.categoryItems || itemId === undefined) {
+            if (!this.list || !this.list.items || this.itemId === undefined) {
                 return {};
             }
-            const catItem = this.category.categoryItems.find(i => i.itemId === itemId);
-            return catItem ? JSON.parse(JSON.stringify(catItem)) : {};
+            return { ...this.list.items[this.itemId] };
         },
         thumbnailImage() {
             if (this.item.image) {
@@ -168,19 +168,24 @@ export default {
         this.setDisplayQty();
     },
     methods: {
-        saveItem: debounce(function() {
-            this.store.updateItem(this.item);
-        },  500),
+        saveItem() {
+            this.store.updateItem({ 
+                id: this.item.id, 
+                data: this.item
+            });
+            this.store.saveItem(this.item.id); 
+        },
         saveCategoryItem() {
             this.store.updateCategoryItem({ category: this.category, categoryItem: this.categoryItem });
         },
         setUnit(unit) {
             this.item.authorUnit = unit;
             this.store.updateItemUnit(unit);
-            this.saveWeight();
+            this.saveWeight(); // calling saveWeight preserves the text in the weight box instead of converting units.
         },
         savePrice() {
             const priceFloat = parseFloat(this.displayPrice, 10);
+
             if (!isNaN(priceFloat)) {
                 this.item.price = Math.round(priceFloat * 100) / 100;
                 this.saveItem();
@@ -191,6 +196,7 @@ export default {
         },
         saveQty() {
             const qtyFloat = parseFloat(this.displayQty, 10);
+
             if (!isNaN(qtyFloat)) {
                 this.categoryItem.qty = qtyFloat;
                 this.saveCategoryItem();
@@ -201,6 +207,7 @@ export default {
         },
         saveWeight() {
             const weightFloat = parseFloat(this.displayWeight, 10);
+
             if (!isNaN(weightFloat)) {
                 this.item.weight = weightUtils.WeightToMg(weightFloat, this.item.authorUnit);
                 this.saveItem();
@@ -218,20 +225,16 @@ export default {
         },
         setDisplayQty() {
             if (!this.qtyError) {
-                this.displayQty = this.categoryItem.qty || 0;
+                this.displayQty = this.categoryItem.qty;
             }
         },
         setDisplayWeight() {
-            if (this.item && this.item.weight !== undefined) {
-                this.displayWeight = weightUtils.MgToWeight(this.item.weight, this.item.authorUnit);
-            }
+            this.displayWeight = weightUtils.MgToWeight(this.item.weight, this.item.authorUnit);
         },
         updateItemLink() {
-            console.log('updateItemLink fired')
             bus.emit('updateItemLink', this.item);
         },
         updateItemImage() {
-            console.log('updateItemImage fired')
             bus.emit('updateItemImage', this.item);
         },
         viewItemImage() {
@@ -239,14 +242,14 @@ export default {
         },
         toggleWorn() {
             if (this.categoryItem.consumable) {
-                this.categoryItem.consumable = false;
+                return;
             }
             this.categoryItem.worn = !this.categoryItem.worn;
             this.saveCategoryItem();
         },
         toggleConsumable() {
             if (this.categoryItem.worn) {
-                this.categoryItem.worn = false;
+                return;
             }
             this.categoryItem.consumable = !this.categoryItem.consumable;
             this.saveCategoryItem();
@@ -260,47 +263,87 @@ export default {
         },
         incrementPrice(evt) {
             evt.stopImmediatePropagation();
-            if (this.priceError) return;
-            this.item.price = (this.item.price || 0) + 1;
+
+            if (this.priceError) {
+                return;
+            }
+
+            this.item.price = this.item.price + 1;
+
             this.saveItem();
             this.setDisplayPrice();
         },
         decrementPrice(evt) {
             evt.stopImmediatePropagation();
-            if (this.priceError) return;
-            this.item.price = Math.max(0, (this.item.price || 0) - 1);
+
+            if (this.priceError) {
+                return;
+            }
+
+            this.item.price = this.item.price - 1;
+
+            if (this.item.price < 0) {
+                this.item.price = 0;
+            }
+
             this.saveItem();
             this.setDisplayPrice();
         },
         incrementQty(evt) {
             evt.stopImmediatePropagation();
-            if (this.qtyError) return;
-            this.categoryItem.qty = (this.categoryItem.qty || 0) + 1;
+
+            if (this.qtyError) {
+                return;
+            }
+
+            this.categoryItem.qty = this.categoryItem.qty + 1;
             this.saveCategoryItem();
         },
         decrementQty(evt) {
             evt.stopImmediatePropagation();
-            if (this.qtyError) return;
-            this.categoryItem.qty = Math.max(0, (this.categoryItem.qty || 0) - 1);
+
+            if (this.qtyError) {
+                return;
+            }
+
+            this.categoryItem.qty = this.categoryItem.qty - 1;
+
+            if (this.categoryItem.qty < 0) {
+                this.categoryItem.qty = 0;
+            }
+
             this.saveCategoryItem();
         },
         incrementWeight(evt) {
             evt.stopImmediatePropagation();
-            if (this.weightError) return;
+
+            if (this.weightError) {
+                return;
+            }
+
             const newWeight = weightUtils.MgToWeight(this.item.weight, this.item.authorUnit) + 1;
             this.item.weight = weightUtils.WeightToMg(newWeight, this.item.authorUnit);
+
             this.saveItem();
         },
         decrementWeight(evt) {
             evt.stopImmediatePropagation();
-            if (this.weightError) return;
-            const newWeight = Math.max(0, weightUtils.MgToWeight(this.item.weight, this.item.authorUnit) - 1);
+
+            if (this.weightError) {
+                return;
+            }
+
+            const newWeight = weightUtils.MgToWeight(this.item.weight, this.item.authorUnit) - 1;
             this.item.weight = weightUtils.WeightToMg(newWeight, this.item.authorUnit);
+
+            if (this.item.weight < 0) {
+                this.item.weight = 0;
+            }
+
             this.saveItem();
         },
         removeItem() {
             this.store.removeItemFromCategory({ itemId: this.item.id, category: this.category });
         },
-    } 
-};
+    },
 </script>

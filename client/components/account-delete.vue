@@ -33,6 +33,7 @@
 import errors from './errors.vue';
 import modal from './modal.vue';
 import bus from '../bus.js';
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'Account',
@@ -81,11 +82,11 @@ export default {
                     'Content-Type': 'application/json',
                 },
                 credentials: 'same-origin',
-                body: JSON.stringify({ username: this.$store.state.loggedIn, password: this.currentPassword }),
+                body: JSON.stringify({ username: store.loggedIn, password: this.currentPassword }),
             })
                 .then((response) => {
                     this.deleting = false;
-                    this.$store.commit('signout');
+                    store.signout;
                     this.$router.push('/signin');
                 })
                 .catch((err) => {

@@ -104,6 +104,7 @@ import unitSelect from './unit-select.vue';
 import utilsMixin from '../mixins/utils-mixin.js';
 import pies from '../pies.js';
 import colorUtils from '../utils/color.js';
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'ListSummary',
@@ -120,8 +121,14 @@ export default {
         };
     },
     computed: {
+        store() {
+            return useLibraryStore();
+        },
         library() {
-            return this.$store.state.library;
+            return this.store.library;
+        },
+        defaultListId() {
+            return this.store.library ? this.store.library.defaultListId : null;
         },
         categories() {
             return this.list.categoryIds.map((id) => {
@@ -132,7 +139,7 @@ export default {
         },
     },
     watch: {
-        '$store.state.library.defaultListId': 'updateChart',
+        defaultListId: 'updateChart',
         'list.totalWeight': 'updateChart',
         'list.categoryIds': 'updateChart',
     },
@@ -160,12 +167,12 @@ export default {
             }
         },
         setTotalUnit(unit) {
-            this.$store.commit('setTotalUnit', unit);
+            this.store.setTotalUnit(unit);
         },
         updateColor(category, color) {
             category.color = colorUtils.hexToRgb(color);
             category.displayColor = colorUtils.rgbToString(colorUtils.hexToRgb(color));
-            this.$store.commit('updateCategoryColor', category);
+            this.store.updateCategoryColor(category);
             this.updateChart();
         },
         colorToHex(color) {

@@ -1,5 +1,5 @@
 <style lang="scss">
-@use "../css/_globals" as *;
+@import "../css/_globals";
 
 #header {
     align-items: baseline;
@@ -96,7 +96,7 @@
                 <div class="lpContact">
                     <a class="lpHref" href="https://github.com/galenmaly/lighterpack" target="_blank" rel="noopener noreferrer">Copyleft</a> LighterPack 2019
                     -
-                    <a class="lpHref" href="/cdn-cgi/l/email-protection#9bf2f5fdf4dbf7f2fcf3effee9ebfaf8f0b5f8f4f6">Contact</a>
+                    <a class="lpHref" href="/cdn-cgi/l/email-protection#e38a8d858ca38f8a848b97869193828088cd808c8e">Contact</a>
                 </div>
             </div>
         </div>
@@ -114,7 +114,7 @@
     </div>
 </template>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 import globalAlerts from '../components/global-alerts.vue';
 import sidebar from '../components/sidebar.vue';
 import share from '../components/share.vue';
@@ -125,6 +125,7 @@ import account from '../components/account.vue';
 import accountDelete from '../components/account-delete.vue';
 import help from '../components/help.vue';
 import list from '../components/list.vue';
+
 import itemImage from '../components/item-image.vue';
 import itemViewImage from '../components/item-view-image.vue';
 import itemLink from '../components/item-link.vue';
@@ -175,14 +176,6 @@ export default {
             return this.store.loggedIn;
         },
     },
-    watch: {
-        library(newVal) {
-            if (!newVal) {
-                this.isLoaded = false;
-                this.$router.push('/signin');
-            }
-        },
-    },
     beforeMount() {
         if (!this.store.library) {
             this.$router.push('/welcome');
@@ -194,9 +187,4 @@ export default {
         toggleSidebar() {
             this.store.toggleSidebar();
         },
-        updateListName(evt) {
-            this.store.updateListName({ id: this.list.id, name: evt.target.value });
-        },
-    },
-};
-</script>
+      

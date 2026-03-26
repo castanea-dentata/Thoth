@@ -89,6 +89,7 @@ import { nextTick } from 'vue';
 import category from './category.vue';
 import listSummary from './list-summary.vue';
 import dragula from 'dragula';
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'List',
@@ -103,11 +104,14 @@ export default {
         };
     },
     computed: {
+        store() {
+            return useLibraryStore();
+        },
         library() {
-            return this.$store.state.library;
+            return this.store.library;
         },
         list() {
-            return this.$store.getters.activeList;
+            return this.store.activeList;
         },
         categories() {
             if (!this.list || !this.list.categoryIds || !this.library) return [];
@@ -119,7 +123,7 @@ export default {
             return this.list.totalWeight === 0;
         },
         isLocalSaving() {
-            return this.$store.state.saveType === 'local';
+            return this.store.saveType === 'local';
         },
     },
     watch: {
@@ -135,14 +139,14 @@ export default {
     },
     methods: {
         newCategory() {
-            this.$store.commit('newCategory', this.list);
+            this.store.newCategory(this.list);
         },
         updateListDescription() {
-            this.$store.commit('updateListDescription', { 
+            this.store.updateListDescription({ 
                 id: this.list.id, 
                 description: this.list.description 
             });
-            this.$store.dispatch('saveList', this.list.id);
+            this.store.saveList(this.list.id);
         },
         handleItemReorder() {
             if (this.itemDrake) {
@@ -165,7 +169,7 @@ export default {
             });
             drake.on('drop', ($el, $target, $source, $sibling) => {
                 const categoryId = parseInt($target.parentElement.id); // fragile
-                this.$store.commit('reorderItem', {
+                this.store.reorderItem({
                     list: this.list, itemId: this.itemDragId, categoryId, dropIndex: getElementIndex($el) - 1,
                 });
                 drake.cancel(true);
@@ -183,7 +187,7 @@ export default {
                 this.categoryDragStartIndex = getElementIndex($el);
             });
             drake.on('drop', ($el, $target, $source, $sibling) => {
-                this.$store.commit('reorderCategory', { list: this.list, before: this.categoryDragStartIndex, after: getElementIndex($el) });
+                this.store.reorderCategory({ list: this.list, before: this.categoryDragStartIndex, after: getElementIndex($el) });
                 drake.cancel(true);
             });
         },

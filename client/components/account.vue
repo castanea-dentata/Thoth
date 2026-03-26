@@ -57,10 +57,10 @@ export default {
     },
     computed: {
         library() {
-            return this.$store.state.library;
+            return store.library;
         },
         username() {
-            return this.$store.state.loggedIn;
+            return store.loggedIn;
         },
     },
     beforeMount() {

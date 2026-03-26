@@ -48,6 +48,7 @@
 import item from './item.vue';
 import bus from '../bus.js';
 import utilsMixin from '../mixins/utils-mixin.js';
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'Category',
@@ -57,8 +58,11 @@ export default {
     mixins: [utilsMixin],
     props: ['category'],
     computed: {
+        store() {
+            return useLibraryStore();
+        },
         library() {
-            return this.$store.state.library;
+            return this.store.library;
         },
         itemContainers() {
             if (!this.library || typeof this.library.getItemById !== 'function') {
@@ -72,14 +76,14 @@ export default {
     },
     methods: {
         newItem() {
-            this.$store.commit('newItem', { category: this.category, _isNew: true });
+            this.store.newItem({ category: this.category, _isNew: true });
         },
         updateCategoryName(evt) {
-            this.$store.commit('updateCategoryName', { id: this.category.id, name: evt.target.value });
+            this.store.updateCategoryName({ id: this.category.id, name: evt.target.value });
         },
         removeCategory(category) {
             const callback = () => {
-                this.$store.commit('removeCategory', category);
+                this.store.removeCategory(category);
             };
             const speedbumpOptions = {
                 body: 'Are you sure you want to delete this category? This cannot be undone.',

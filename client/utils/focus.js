@@ -1,5 +1,5 @@
 import uniqueId from 'lodash/uniqueId';
-import store from '../store/store.js';
+import { useLibraryStore } from '../store/useLibraryStore.js';
 import bus from '../bus.js';
 
 export const selectOnFocus = {
@@ -60,11 +60,13 @@ export const clickOutside = {
         };
         window.addEventListener('click', handler);
         el.dataset.clickoutside = uniqueId();
-        store.commit('addDirectiveInstance', { key: el.dataset.clickoutside, value: handler });
+        const store = useLibraryStore();
+        store.addDirectiveInstance({ key: el.dataset.clickoutside, value: handler });
     },
     unmounted(el) {
-        const handler = store.state.directiveInstances[el.dataset.clickoutside];
-        store.commit('removeDirectiveInstance', el.dataset.clickoutside);
+        const store = useLibraryStore();
+        const handler = store.directiveInstances[el.dataset.clickoutside];
+        store.removeDirectiveInstance(el.dataset.clickoutside);
         window.removeEventListener('click', handler);
     },
 };

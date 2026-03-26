@@ -38,12 +38,16 @@
 </template>
 
 <script>
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'GlobalAlerts',
     computed: {
+        store() {
+            return useLibraryStore();
+        },
         alerts() {
-            return this.$store.state.globalAlerts;
+            return this.store.globalAlerts;
         },
     },
 };

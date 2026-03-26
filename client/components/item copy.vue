@@ -115,13 +115,13 @@ export default {
     },
     computed: {
         library() {
-            return this.$store.state.library;
+            return store.library;
         },
         item() {
-            if (!this.$store.state.items || this.itemId === undefined) {
+            if (!store.items || this.itemId === undefined) {
                 return {}; 
             }
-            const storeItem = this.$store.state.items[this.itemId];
+            const storeItem = store.items[this.itemId];
             if (!storeItem) {
                 return {};
             }

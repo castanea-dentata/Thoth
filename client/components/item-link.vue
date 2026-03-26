@@ -16,6 +16,7 @@
 <script>
 import modal from './modal.vue';
 import bus from '../bus.js';
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'ItemLink',
@@ -38,7 +39,7 @@ export default {
     },
     methods: {
         addLink() {
-            this.$store.commit('updateItemLink', { url: this.url, item: this.item });
+            this.store.updateItemLink({ url: this.url, item: this.item });
             this.shown = false;
         },
     },
