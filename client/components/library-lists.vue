@@ -1,5 +1,5 @@
 <style lang="scss">
-@import "../css/_globals";
+@use "../css/_globals" as *;
 
 #listContainer {
     flex: 0 0 auto;

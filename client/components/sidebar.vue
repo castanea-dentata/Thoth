@@ -1,5 +1,5 @@
 <style lang="scss">
-@import "../css/_globals";
+@use "../css/_globals" as *;
 
 $sidebarWidth: 280px;
 $sidebarOverflow: 1000px;

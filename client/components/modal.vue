@@ -1,5 +1,5 @@
 <style lang="scss">
-@import "../css/_globals";
+@use "../css/_globals" as *;
 
 .lpModal {
     background: $background1;

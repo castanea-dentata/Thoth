@@ -1,12 +1,12 @@
-@import "globals";
+@use "globals";
 
 .lpList {
     background: inherit;
     min-height: 100%;
     padding: 0 20px;
     position: relative;
-    transition: all $transitionDurationSlow;
-    z-index: $aboveSidebar;
+    transition: all globals.$transitionDurationSlow;
+    z-index: globals.$aboveSidebar;
 
     .lpHasSidebar & {
         margin-left: 320px;
@@ -34,11 +34,11 @@
     margin: 0 0 20px;
 
     &.dropAccept {
-        background: $yellow2;
+        background: globals.$yellow2;
     }
 
     &.dropHover {
-        background: $green2;
+        background: globals.$green2;
     }
 
     &.gu-mirror {

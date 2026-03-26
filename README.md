@@ -23,6 +23,13 @@ For Dev Server:
 6. Run npm run dev
 7. Visit http://localhost:8080
 
+For Docker
+1. ```$ git clone https://github.com/castanea-dentata/thoth.git```
+2. docker compose run -rm app npx prisma migrate deploy
+3. docker compose up -d
+4. Visit http://localhost:3000
+5. **WARNING** The postgresql database is created with the default password 'lighterpack'. Make sure to change this password immediately. **WARNING**
+
 To-do
 -----------
 - migrate from vue2 to vue3 - partially completed
@@ -41,3 +48,4 @@ Operating Systems
 Tested to work on:
 - macOS Tahoe 26.3.1(a)
 - Proxmox running a Debian LXC
+- Docker
