@@ -146,7 +146,6 @@ export default {
                 id: this.list.id, 
                 description: this.list.description 
             });
-            this.store.saveList(this.list.id);
         },
         handleItemReorder() {
             if (this.itemDrake) {

@@ -131,8 +131,6 @@ function stripFunctions(obj) {
 }
 
 function returnLibrary(req, res, user) {
-    console.log('LIBRARY TYPE:', typeof user.library);
-    console.log('LIBRARY:', JSON.stringify(user.library).substring(0, 100));
     logWithRequest(req, { message: 'signed in', username: user.username });
     if (!user.syncToken) {
         prisma.user.update({
@@ -178,7 +176,6 @@ async function saveLibrary(req, res, user) {
 
     try {
         const newSyncToken = user.syncToken + 1;
-        console.log('ABOUT TO UPDATE LIBRARY, sequence:', library.sequence);
         const updated = await prisma.user.update({
             where: { username: user.username },
             data: {
@@ -186,13 +183,9 @@ async function saveLibrary(req, res, user) {
                 syncToken: newSyncToken,
             },
         });
-        console.log('UPDATED LIBRARY IN DB:', JSON.stringify(updated.library).substring(0, 200));
         logWithRequest(req, { message: 'saved library', username: user.username });
         return res.status(200).json({ message: 'success', syncToken: newSyncToken });
     } catch (err) {
-        console.log('SAVE ERROR:', Object.keys(err), err.constructor.name);
-        console.log('SAVE ERROR MESSAGE:', err.message);
-        console.log('SAVE ERROR META:', JSON.stringify(err.meta));
         logWithRequest(req, { message: 'Save library error', error: err });
         return res.status(500).json({ message: 'An error occurred while saving your data.' });
     }

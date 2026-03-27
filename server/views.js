@@ -105,6 +105,7 @@ router.get('/r/:id', async (req, res) => {
 
         const library = new Library();
         library.load(users[0].library);
+
         let list;
 
         for (const i in library.lists) {

@@ -29,7 +29,7 @@
 
 <script>
 import PopoverHover from './popover-hover.vue';
-import bus from '../bus.js'
+import bus from '../bus.js';
 import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
@@ -81,13 +81,13 @@ export default {
                     credentials: 'same-origin',
                 })
                     .then((response) => {
-                        this.store.setExternalId({ externalId: response.externalId, list: this.list });
+                        this.store.setExternalId({ externalId: response.id, list: this.list });
                         setTimeout(() => {
                             bus.emit('show-share-box');
                         }, 0);
                     })
                     .catch((response) => {
-                        alert('An error occurred while attempting to get an ID for your list. Please try again later.'); // TODO
+                        alert('An error occurred while attempting to get an ID for your list. Please try again later.');
                     });
             }
             bus.emit('show-share-box');

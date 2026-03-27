@@ -158,6 +158,7 @@ export const useLibraryStore = defineStore('library', {
         setExternalId(args) {
             const list = this.library.getListById(args.list.id);
             list.externalId = args.externalId;
+            this.library.lists = [...this.library.lists];
         },
         updateCategoryName(updatedCategory) {
             const category = this.library.getCategoryById(updatedCategory.id);

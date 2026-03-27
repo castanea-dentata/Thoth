@@ -36,6 +36,7 @@ import errors from './errors.vue';
 import modal from './modal.vue';
 import spinner from './spinner.vue';
 import bus from '../bus.js';
+import { useLibraryStore } from '../store/useLibraryStore.js';
 
 export default {
     name: 'Account',
@@ -56,11 +57,14 @@ export default {
         };
     },
     computed: {
+        store() {
+            return useLibraryStore();
+        },
         library() {
-            return store.library;
+            return this.store.library;
         },
         username() {
-            return store.loggedIn;
+            return this.store.loggedIn;
         },
     },
     beforeMount() {
