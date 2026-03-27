@@ -25,7 +25,7 @@ For Dev Server:
 
 For Docker
 1. ```$ git clone https://github.com/castanea-dentata/thoth.git```
-2. docker compose run -rm app npx prisma migrate deploy
+2. docker compose run --rm app npx prisma migrate deploy
 3. docker compose up -d
 4. Visit http://localhost:3000
 5. **WARNING** The postgresql database is created with the default password 'lighterpack'. Make sure to change this password immediately.
