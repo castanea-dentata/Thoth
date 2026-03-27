@@ -28,17 +28,29 @@ For Docker
 2. docker compose run -rm app npx prisma migrate deploy
 3. docker compose up -d
 4. Visit http://localhost:3000
-5. **WARNING** The postgresql database is created with the default password 'lighterpack'. Make sure to change this password immediately. **WARNING**
+5. **WARNING** The postgresql database is created with the default password 'lighterpack'. Make sure to change this password immediately.
+    - sudo -i -u postgres
+    - psql
+    - \password lighterpack
+    - \q
+
+Completed
+-----------
+- ~~migrate from vue2 to vue3~~ - completed
+- ~~migrate from vuex to pinia~~ - completed
+- ~~resolve issues with various outdated npm packages~~ - completed
+- ~~change database from mongodb to postgres~~ - completed
 
 To-do
 -----------
-- migrate from vue2 to vue3 - partially completed
 - migrate from webpack to vite
-- migrate from vuex to pinia
-- ~~resolve issues with various outdated npm packages~~ - completed
-    - all security vulnerabilities from npm audit are fixed, still upgrading outdated packages.
-- ~~change database from mongodb to postgres~~ - completed
+- all security vulnerabilities from npm audit are fixed, still upgrading outdated packages.
+    - had to stop upgrading outdated packages, too many breaking issues at the moment, will come back to this.
 - implement a local image upload feature instead of using imgur, imgur uploads do not function, and the feature will not work.
+
+Broken Things
+-----------
+- Imgur uploads (broken on the original app, see above for future plans)
 
 Things to Test
 -----------
