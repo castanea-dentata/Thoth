@@ -1,19 +1,20 @@
 {
   "name": "lighterpack",
-  "version": "2.0.0",
+  "version": "2.0.1b",
   "description": "LighterPack =========== LighterPack is a website to track the gear you take on adventures. It is still in Beta.",
   "main": "app.js",
   "scripts": {
     "setup": "node setup.js",
-    "dev": "NODE_OPTIONS=--openssl-legacy-provider webpack serve --config ./webpack.development.config.js",
-    "start": "NODE_OPTIONS=--openssl-legacy-provider webpack --config ./webpack.development.config.js --watch & NODE_OPTIONS=--openssl-legacy-provider node app.js",
-    "build": "NODE_OPTIONS=--openssl-legacy-provider webpack-cli --config ./webpack.config.js",
+    "dev": "concurrently \"node app.js\" \"vite\"",
+    "build": "vite build",
+    "start": "node app.js",
+    "preview": "vite preview",
     "lint:css": "./node_modules/.bin/stylelint \"client/**/*.{scss,vue}\" --fix",
     "lint:js": "./node_modules/.bin/eslint --ext .vue --ext .js ./ --fix"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/galenmaly/lighterpack"
+    "url": "https://github.com/castanea-dentata/thoth"
   },
   "author": "",
   "license": "GPL-2.0",
@@ -23,22 +24,18 @@
     "@prisma/client": "^6.12.0",
     "@vue/compiler-sfc": "^3.5.31",
     "axios": "^1.13.6",
-    "babel-loader": "^10.1.1",
     "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.2",
     "compression": "^1.7.3",
     "config": "^4.4.1",
     "cookie-parser": "^1.4.0",
-    "css-loader": "^7.1.4",
     "dotenv": "^17.3.1",
     "dragula": "^3.7.3",
     "express": "^5.2.1",
-    "file-loader": "^6.2.0",
     "form-data": "^4.0.5",
     "lodash": "^4.17.23",
     "mailgun.js": "^12.7.1",
     "markdown": "^0.5.0",
-    "mini-css-extract-plugin": "^2.10.2",
     "mitt": "^3.0.1",
     "morgan": "^1.10.0",
     "mustache": "^4.2.0",
@@ -47,18 +44,17 @@
     "pinia": "^3.0.4",
     "prisma": "^6.12.0",
     "sass": "^1.98.0",
-    "sass-loader": "^16.0.7",
     "uuid": "^13.0.0",
     "vue": "^3.5.31",
-    "vue-loader": "^17.4.2",
     "vue-router": "^5.0.4",
-    "webpack": "^5.105.4",
     "whatwg-fetch": "^3.6.20",
     "winston": "^3.19.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.48.1",
     "@types/node": "^22.7.9",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "concurrently": "^9.2.1",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.32.0",
@@ -66,11 +62,8 @@
     "stylelint": "^17.6.0",
     "stylelint-config-standard": "^40.0.0",
     "stylelint-order": "^8.1.1",
-    "vue-style-loader": "^4.1.3",
-    "webpack-cli": "^7.0.2",
-    "webpack-dev-middleware": "^8.0.2",
-    "webpack-dev-server": "^5.2.3",
-    "webpack-hot-middleware": "^2.26.1"
+    "vite": "^6.4.1",
+    "webpack-dev-server": "^5.2.3"
   },
   "overrides": {
     "brace-expansion": "^5.0.5"
