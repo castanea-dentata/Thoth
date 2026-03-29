@@ -1,5 +1,5 @@
 # Thoth - Dockerfile
-# Multi-stage build: build the frontend, then serve with Node.js
+# Multi-stage build: build the frontend with Vite, then serve with Node.js
 
 # ── Stage 1: Build ──────────────────────────────────────────────────────────
 FROM node:24-alpine AS builder
@@ -13,8 +13,8 @@ RUN npm ci
 # Copy source files
 COPY . .
 
-# Build the frontend assets
-RUN NODE_OPTIONS=--openssl-legacy-provider npm run build
+# Build the frontend assets with Vite
+RUN npm run build
 
 # ── Stage 2: Production ──────────────────────────────────────────────────────
 FROM node:24-alpine
