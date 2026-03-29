@@ -22,7 +22,7 @@ if (config.get('mailgunAPIKey')) {
     });
 }
 
-const dataTypes = require('../client/dataTypes.js');
+const dataTypes = require('./dataTypes.cjs');
 const Library = dataTypes.Library;
 
 // one day in many years this can go away.

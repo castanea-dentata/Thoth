@@ -1,3 +1,4 @@
+import './css/lighterpack.scss';
 import './utils/utils.js';
 import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';

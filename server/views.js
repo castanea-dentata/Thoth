@@ -10,10 +10,9 @@ const config = require('config');
 const { logWithRequest, logger } = require('./log.js');
 const prisma = require('./prisma.js');
 
-const weightUtils = require('../client/utils/weight.js');
-const dataTypes = require('../client/dataTypes.js');
-
+const dataTypes = require('./dataTypes.cjs');
 const Library = dataTypes.Library;
+const weightUtils = dataTypes.weightUtils;
 
 const templates = {};
 
