@@ -93,11 +93,11 @@ export default {
                 return;
             }
             if (file.size > 1000000) {
-                alert('File is too big');
+                this.store.addAlert('File is too big');
                 return;
-            }
+            }   
             if (name.substring(name.length - 4).toLowerCase() != '.csv') {
-                alert('Please select a CSV.');
+                this.store.addAlert('Please select a CSV.');
                 return;
             }
             const reader = new FileReader();
@@ -162,7 +162,7 @@ export default {
             }
 
             if (!this.importData.data.length) {
-                alert('Unable to load spreadsheet - please verify the format.');
+                this.store.addAlert('Unable to load spreadsheet - please verify the format.');
             } else {
                 this.shown = true;
             }

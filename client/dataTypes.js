@@ -1,6 +1,7 @@
 import assignIn from 'lodash/assignIn.js';
 import colorUtils from './utils/color.js';
 import weightUtils from './utils/weight.js';
+import { useLibraryStore } from './store/useLibraryStore.js';
 
 const defaultOptionalFields = {
     images: false,
@@ -400,7 +401,8 @@ Library.prototype.removeCategory = function (id, force) {
     const list = this.findListWithCategoryById(id);
 
     if (list && list.categoryIds.length == 1 && !force) {
-        alert("Can't remove the last category in a list!");
+        const store = useLibraryStore();
+        store.addAlert("Can't remove the last category in a list!");
         return false;
     }
 
