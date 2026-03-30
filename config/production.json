@@ -1,0 +1,5 @@
+{
+    "environment": "production",
+    "deployUrl": "http://localhost:3000",
+    "publicUrl": "http://localhost:3000"
+}
