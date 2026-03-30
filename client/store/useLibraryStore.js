@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import debounce from 'lodash/debounce';
+import debounce from 'lodash/debounce.js';
 import bus from '../bus.js';
 import { Library } from '../dataTypes.js';
 import weightUtils from '../utils/weight.js';
@@ -60,6 +60,12 @@ export const useLibraryStore = defineStore('library', {
         },
         clearLibraryData() {
             this.library = false;
+        },
+        addAlert(message) {
+            this.globalAlerts.push({ message });
+        },
+        clearAlerts() {
+            this.globalAlerts = [];
         },
         toggleSidebar() {
             this.library.showSidebar = !this.library.showSidebar;
@@ -324,7 +330,7 @@ export const useLibraryStore = defineStore('library', {
                             if (response.status == 401) {
                                 bus.emit('unauthorized', error);
                             } else {
-                                alert(error);
+                                this.addAlert(error);
                             }
                         });
                 };

@@ -87,11 +87,11 @@ export default {
                 return;
             }
             if (file.size > 2500000) {
-                alert('Please upload a file less than 2.5mb');
+                this.store.addAlert('Please upload a file less than 2.5mb');
                 return;
             }
             if (file.type != 'image/png' && file.type != 'image/jpg' && file.type != 'image/gif' && file.type != 'image/jpeg') {
-                alert('File does not match png, jpg or gif.');
+                this.store.addAlert('File does not match png, jpg or gif.');
                 return;
             }
 
@@ -111,7 +111,7 @@ export default {
                     this.shown = false;
                 }).catch((response) => {
                     this.uploading = false;
-                    alert('Upload failed! If this issue persists please file a bug.');
+                    this.store.addAlert('Upload failed! If this issue persists please file a bug.');
                 });
         },
         removeItemImage() {

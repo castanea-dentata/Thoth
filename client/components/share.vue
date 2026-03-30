@@ -87,7 +87,7 @@ export default {
                         }, 0);
                     })
                     .catch((response) => {
-                        alert('An error occurred while attempting to get an ID for your list. Please try again later.');
+                        this.store.addAlert('An error occurred while attempting to get an ID for your list. Please try again later.');
                     });
             }
             bus.emit('show-share-box');
