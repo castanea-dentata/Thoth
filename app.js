@@ -5,6 +5,7 @@ const config = require('config');
 const express = require('express');
 const morgan = require('morgan');
 const uuid = require('uuid');
+const path = require('path');
 
 const { logger } = require('./server/log.js');
 
@@ -53,6 +54,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.use(express.static(`${__dirname}/public/`, { maxAge: oneDay }));
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 const endpoints = require('./server/endpoints.js');
 const moderationEndpoints = require('./server/moderation-endpoints.js');
 const views = require('./server/views.js');

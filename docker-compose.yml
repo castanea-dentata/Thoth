@@ -1,5 +1,7 @@
 services:
   app:
+    volumes:
+      - uploads_data:/app/public/uploads
     build: .
     ports:
       - "3000:3000"
@@ -28,3 +30,4 @@ services:
 
 volumes:
   postgres_data:
+  uploads_data:

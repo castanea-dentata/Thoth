@@ -26,6 +26,7 @@
     "axios": "^1.13.6",
     "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.2",
+    "busboy": "^1.6.0",
     "compression": "^1.7.3",
     "config": "^4.4.1",
     "cookie-parser": "^1.4.0",

@@ -15,3 +15,5 @@ app.sublime-workspace
 .env
 
 /generated/prisma
+public/uploads/*
+!public/uploads/.gitkeep

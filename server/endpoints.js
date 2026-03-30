@@ -11,6 +11,7 @@ const router = express.Router();
 const FormData = require('form-data');
 const Mailgun = require('mailgun.js');
 const fs = require('fs');
+const busboy = require('busboy');
 
 let mailgun;
 if (config.get('mailgunAPIKey')) {
@@ -377,47 +378,65 @@ async function deleteAccount(req, res, user) {
 }
 
 router.post('/imageUpload', (req, res) => {
-    return res.status(501).json({ message: 'Image upload is not currently supported.' });
+    imageUpload(req, res, {});
 });
 
 async function imageUpload(req, res, user) {
-    const form = new formidable.IncomingForm();
-    form.parse(req, async (err, fields, files) => {
-        if (err) {
-            logWithRequest(req, 'form parse error');
-            return res.status(500).json({ message: 'An error occurred' });
-        }
-        if (!files || !files.image) {
-            logWithRequest(req, 'No image in upload');
-            return res.status(500).json({ message: 'An error occurred' });
-        }
+    const uploadDir = path.join(__dirname, '../public/uploads');
 
-        try {
-            const imagePath = files.image.path;
-            const formData = new FormData();
-            formData.append('image', fs.createReadStream(imagePath));
-            formData.append('type', 'file');
+    // Ensure upload directory exists
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+    }
 
-            const response = await fetch('https://api.imgur.com/3/image', {
-                method: 'POST',
-                headers: {
-                    Authorization: `Client-ID ${config.get('imgurClientID')}`,
-                },
-                body: formData,
-            });
-
-            if (!response.ok) {
-                logWithRequest(req, 'imgur post fail!');
-                return res.status(500).json({ message: 'An error occurred.' });
-            }
-
-            const body = await response.json();
-            return res.send(body);
-        } catch (e) {
-            logWithRequest(req, 'imgur post fail!');
-            return res.status(500).json({ message: 'An error occurred.' });
-        }
+    const bb = busboy({ 
+        headers: req.headers,
+        limits: { fileSize: 2.5 * 1024 * 1024 }, // 2.5mb limit
     });
+
+    let filename = null;
+    let fileError = null;
+
+    bb.on('file', (name, file, info) => {
+        const { mimeType } = info;
+        const allowedTypes = ['image/png', 'image/jpg', 'image/jpeg', 'image/gif'];
+
+        if (!allowedTypes.includes(mimeType)) {
+            fileError = 'Invalid file type. Please upload a PNG, JPG, or GIF.';
+            file.resume();
+            return;
+        }
+
+        const ext = mimeType.split('/')[1].replace('jpeg', 'jpg');
+        const alphabet = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 12);
+        filename = `${alphabet()}.${ext}`;
+        const savePath = path.join(uploadDir, filename);
+        const writeStream = fs.createWriteStream(savePath);
+
+        file.on('limit', () => {
+            fileError = 'File is too large. Maximum size is 2.5mb.';
+            fs.unlink(savePath, () => {});
+        });
+
+        file.pipe(writeStream);
+    });
+
+    bb.on('finish', () => {
+        if (fileError) {
+            return res.status(400).json({ message: fileError });
+        }
+        if (!filename) {
+            return res.status(400).json({ message: 'No image provided.' });
+        }
+        return res.status(200).json({ imageUrl: `/uploads/${filename}` });
+    });
+
+    bb.on('error', (err) => {
+        logWithRequest(req, err);
+        return res.status(500).json({ message: 'An error occurred.' });
+    });
+
+    req.pipe(bb);
 }
 
 module.exports = router;
