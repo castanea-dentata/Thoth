@@ -1,17 +1,24 @@
-const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
-const path = require('path');
-const express = require('express');
-const { customAlphabet } = require('nanoid');
-const config = require('config');
-const { logWithRequest } = require('./log.js');
-const prisma = require('./prisma.js');
-const { authenticateUser, verifyPassword } = require('./auth.js');
+import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
+import path from 'path';
+import express from 'express';
+import { customAlphabet } from 'nanoid';
+import config from 'config';
+import { fileURLToPath } from 'url';
+import { logWithRequest } from './log.js';
+import prisma from './prisma.js';
+import { authenticateUser, verifyPassword } from './auth.js';
+import FormData from 'form-data';
+import Mailgun from 'mailgun.js';
+import fs from 'fs';
+import busboy from 'busboy';
+import { createRequire } from 'module';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const require = createRequire(import.meta.url);
 const router = express.Router();
-const FormData = require('form-data');
-const Mailgun = require('mailgun.js');
-const fs = require('fs');
-const busboy = require('busboy');
 
 let mailgun;
 if (config.get('mailgunAPIKey')) {
@@ -23,8 +30,7 @@ if (config.get('mailgunAPIKey')) {
     });
 }
 
-const dataTypes = require('./dataTypes.cjs');
-const Library = dataTypes.Library;
+import { Library } from '../client/dataTypes.js';
 
 // one day in many years this can go away.
 eval(`${fs.readFileSync(path.join(__dirname, './sha3.js'))}`);
@@ -72,7 +78,7 @@ router.post('/register', async (req, res) => {
             logWithRequest(req, { message: 'User email exists', email });
             return res.status(400).json({ errors: [{ field: 'email', message: 'A user with that email already exists.' }] });
         }
-        console.log('Email check passed, starting password hash');
+
         const salt = await bcrypt.genSalt(10);
         const hash = await bcrypt.hash(password, salt);
         const buf = await new Promise((resolve, reject) => {
@@ -112,8 +118,6 @@ router.post('/register', async (req, res) => {
         res.cookie('lp', token, { path: '/', maxAge: 365 * 24 * 60 * 1000 });
         return res.status(200).json({ username, library: JSON.stringify(library), syncToken: 0 });
     } catch (err) {
-        console.log('FULL ERROR:', JSON.stringify(err, null, 2));
-        console.log('ERROR MESSAGE:', err.message);
         logWithRequest(req, { message: 'Registration error', error: err });
         return res.status(500).json({ message: 'An error occurred, please try again later.' });
     }
@@ -177,10 +181,10 @@ async function saveLibrary(req, res, user) {
 
     try {
         const newSyncToken = user.syncToken + 1;
-        const updated = await prisma.user.update({
+        await prisma.user.update({
             where: { username: user.username },
             data: {
-                library: library,
+                library,
                 syncToken: newSyncToken,
             },
         });
@@ -248,7 +252,7 @@ router.post('/forgotPassword', async (req, res) => {
             logWithRequest(req, { message: 'Mailgun not configured', username });
             return res.status(500).json({ message: 'Email service not configured. Please contact the administrator.' });
         }
-        
+
         await mailgun.messages.create(config.get('mailgunDomain'), {
             from: 'Thoth <info@mg.lighterpack.com>',
             to: [email],
@@ -384,14 +388,13 @@ router.post('/imageUpload', (req, res) => {
 async function imageUpload(req, res, user) {
     const uploadDir = path.join(__dirname, '../public/uploads');
 
-    // Ensure upload directory exists
     if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-    const bb = busboy({ 
+    const bb = busboy({
         headers: req.headers,
-        limits: { fileSize: 2.5 * 1024 * 1024 }, // 2.5mb limit
+        limits: { fileSize: 2.5 * 1024 * 1024 },
     });
 
     let filename = null;
@@ -439,4 +442,4 @@ async function imageUpload(req, res, user) {
     req.pipe(bb);
 }
 
-module.exports = router;
+export default router;

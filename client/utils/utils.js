@@ -1,4 +1,4 @@
-import assignIn from 'lodash/assignIn';
+import assignIn from 'lodash/assignIn.js';
 import bus from '../bus.js';
 
 class lpError extends Error {

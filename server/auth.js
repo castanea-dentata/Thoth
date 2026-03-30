@@ -1,10 +1,15 @@
-const fs = require('fs');
-const path = require('path');
-const config = require('config');
-const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
-const { logWithRequest } = require('./log.js');
-const prisma = require('./prisma.js');
+import fs from 'fs';
+import path from 'path';
+import { createRequire } from 'module';
+import config from 'config';
+import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
+import { fileURLToPath } from 'url';
+import { logWithRequest } from './log.js';
+import prisma from './prisma.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const moderatorList = config.get('moderators');
 
@@ -127,7 +132,7 @@ function isModerator(username) {
     return moderatorList.indexOf(username) > -1;
 }
 
-module.exports = {
+export {
     authenticateModerator,
     authenticateUser,
     verifyPassword,
