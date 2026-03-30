@@ -27,7 +27,13 @@ const vueRoutes = [
     { path: '/moderation' },
 ];
 
-let index = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
+const isProd = config.get('environment') === 'production';
+let index = fs.readFileSync(
+    isProd 
+        ? path.join(__dirname, '../public/dist/index.html')
+        : path.join(__dirname, '../index.html'),
+    'utf8'
+);
 let shareStylesHtml = '';
 const shareStylesLinks = [];
 let shareScriptsHtml = '';

@@ -5,10 +5,10 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "setup": "node setup.js",
+    "setup": "node setup.cjs",
     "dev": "concurrently \"node app.js\" \"vite\"",
     "build": "vite build",
-    "start": "node app.js",
+    "start": "NODE_ENV=production node app.js",
     "preview": "vite preview",
     "lint:css": "./node_modules/.bin/stylelint \"client/**/*.{scss,vue}\" --fix",
     "lint:js": "./node_modules/.bin/eslint --ext .vue --ext .js ./ --fix"

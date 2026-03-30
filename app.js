@@ -59,6 +59,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.use(express.static(`${__dirname}/public/`, { maxAge: oneDay }));
+app.use(express.static(`${__dirname}/public/dist/`, { maxAge: oneDay }));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 app.use('/', endpoints);

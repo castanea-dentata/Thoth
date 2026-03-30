@@ -15,7 +15,7 @@ export default defineConfig({
         emptyOutDir: true,
         rollupOptions: {
             input: {
-                app: fileURLToPath(new URL('./client/lighterpack.js', import.meta.url)),
+                app: fileURLToPath(new URL('./index.html', import.meta.url)),
             },
         },
     },
