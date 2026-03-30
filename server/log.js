@@ -1,4 +1,4 @@
-const winston = require('winston');
+import winston from 'winston';
 
 class TimestampFirst {
     constructor(enabled = true) {
@@ -34,7 +34,4 @@ const logWithRequest = function (req, data) {
     logger.info(data);
 };
 
-module.exports = {
-    logWithRequest,
-    logger,
-};
+export { logWithRequest, logger };

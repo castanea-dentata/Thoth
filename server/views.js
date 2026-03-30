@@ -1,19 +1,19 @@
-const path = require('path');
-const fs = require('fs');
-const express = require('express');
+import path from 'path';
+import fs from 'fs';
+import express from 'express';
+import { fileURLToPath } from 'url';
+import Mustache from 'mustache';
+import extend from 'node.extend';
+import { markdown } from 'markdown';
+import config from 'config';
+import { logWithRequest, logger } from './log.js';
+import prisma from './prisma.js';
+import { Library, weightUtils } from '../client/dataTypes.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router = express.Router();
-const Mustache = require('mustache');
-const extend = require('node.extend');
-const markdown = require('markdown').markdown;
-const config = require('config');
-const { logWithRequest, logger } = require('./log.js');
-const prisma = require('./prisma.js');
-
-const dataTypes = require('./dataTypes.cjs');
-const Library = dataTypes.Library;
-const weightUtils = dataTypes.weightUtils;
-
 const templates = {};
 
 const vueRoutes = [
@@ -27,46 +27,14 @@ const vueRoutes = [
     { path: '/moderation' },
 ];
 
-let index = fs.readFileSync(path.join(__dirname, '../_index.html'), 'utf8');
-let assetData;
+let index = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
 let shareStylesHtml = '';
 const shareStylesLinks = [];
 let shareScriptsHtml = '';
 const shareScriptsLinks = [];
-let appScriptsHtml = '';
-let appStylesHtml = '';
-
-if (config.get('environment') === 'production') {
-    assetData = JSON.parse(fs.readFileSync(path.join(__dirname, '../public/dist/assets.json'), 'utf8'));
-    const appAssetFiles = assetData.files.app;
-
-    appAssetFiles.forEach((assetName) => {
-        if (assetName.substr(assetName.length - 3) === '.js') {
-            appScriptsHtml += `<script src='/dist/${assetName}'></script>`;
-        } else if (assetName.substr(assetName.length - 4) === '.css') {
-            appStylesHtml += `<link rel='stylesheet' href='/dist/${assetName}' />`;
-        }
-    });
-
-    const shareAssetFiles = assetData.files.share;
-    shareAssetFiles.forEach((assetName) => {
-        if (assetName.substr(assetName.length - 3) === '.js') {
-            shareScriptsHtml += `<script src='/dist/${assetName}'></script>`;
-            shareScriptsLinks.push(assetName);
-        } else if (assetName.substr(assetName.length - 4) === '.css') {
-            shareStylesHtml += `<link rel='stylesheet' href='/dist/${assetName}' />`;
-            shareStylesLinks.push(assetName);
-        }
-    });
-} else {
-    appStylesHtml = '';
-    appScriptsHtml = '<script src=\'/dist/app.js\'></script>';
-    shareStylesHtml = '';
-    shareScriptsHtml = '<script src=\'/dist/share.js\'></script>';
-}
-
-index = index.replace('{{styles}}', appStylesHtml);
-index = index.replace('{{scripts}}', appScriptsHtml);
+let shareTemplate;
+let embedTemplate;
+let embedJTemplate;
 
 for (let i = 0; i < vueRoutes.length; i++) {
     router.get(vueRoutes[i].path, (req, res) => {
@@ -106,7 +74,6 @@ router.get('/r/:id', async (req, res) => {
         library.load(users[0].library);
 
         let list;
-
         for (const i in library.lists) {
             if (library.lists[i].externalId && library.lists[i].externalId == id) {
                 library.defaultListId = library.lists[i].id;
@@ -474,4 +441,4 @@ function renderUnitSelect(unit, unitSelectTemplate, weight) {
 
 init();
 
-module.exports = router;
+export default router;

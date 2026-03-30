@@ -3,6 +3,7 @@
   "version": "2.0.1b",
   "description": "LighterPack =========== LighterPack is a website to track the gear you take on adventures. It is still in Beta.",
   "main": "app.js",
+  "type": "module",
   "scripts": {
     "setup": "node setup.js",
     "dev": "concurrently \"node app.js\" \"vite\"",

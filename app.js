@@ -1,47 +1,52 @@
-const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
-const compression = require('compression');
-const config = require('config');
-const express = require('express');
-const morgan = require('morgan');
-const uuid = require('uuid');
-const path = require('path');
+import cookieParser from 'cookie-parser';
+import bodyParser from 'body-parser';
+import compression from 'compression';
+import config from 'config';
+import express from 'express';
+import morgan from 'morgan';
+import { v4 as uuidv4 } from 'uuid';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { logger } from './server/log.js';
+import endpoints from './server/endpoints.js';
+import moderationEndpoints from './server/moderation-endpoints.js';
+import views from './server/views.js';
 
-const { logger } = require('./server/log.js');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-morgan.token('username', function getUsername (req) {
-    return req.lighterpackusername
+morgan.token('username', function getUsername(req) {
+    return req.lighterpackusername;
 });
 
-
-morgan.token('requestid', function getUsername (req) {
-    return req.uuid
+morgan.token('requestid', function getRequestId(req) {
+    return req.uuid;
 });
 
 const app = express();
 app.enable('trust proxy');
 
 app.use(function (req, res, next) {
-    req.uuid = uuid.v4();
+    req.uuid = uuidv4();
     next();
 });
 
 app.use(morgan(function (tokens, req, res) {
     return JSON.stringify({
-        'timestamp': tokens.date(req, res, 'iso'),
-        'requestid': tokens.requestid(req, res),
-        "remote-addr": tokens['remote-addr'](req, res),
-        'method': tokens.method(req, res),
+        timestamp: tokens.date(req, res, 'iso'),
+        requestid: tokens.requestid(req, res),
+        'remote-addr': tokens['remote-addr'](req, res),
+        method: tokens.method(req, res),
         'http-version': tokens['http-version'](req, res),
         'user-agent': tokens['user-agent'](req, res),
-        'url': tokens.url(req, res),
-        'status': tokens.status(req, res),
-        'referrer': tokens.referrer(req, res),
+        url: tokens.url(req, res),
+        status: tokens.status(req, res),
+        referrer: tokens.referrer(req, res),
         'content-length': tokens.res(req, res, 'content-length'),
         'response-time': tokens['response-time'](req, res),
-        'username': tokens.username(req, res),
-    })
-}, { stream: logger.stream.write }));
+        username: tokens.username(req, res),
+    });
+}, { stream: { write: (msg) => logger.info(msg.trim()) } }));
 
 const oneDay = 86400000;
 
@@ -55,21 +60,14 @@ app.use(bodyParser.urlencoded({
 
 app.use(express.static(`${__dirname}/public/`, { maxAge: oneDay }));
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
-const endpoints = require('./server/endpoints.js');
-const moderationEndpoints = require('./server/moderation-endpoints.js');
-const views = require('./server/views.js');
 
 app.use('/', endpoints);
 app.use('/', moderationEndpoints);
 app.use('/', views);
 
-logger.info("Starting up Lighterpack...");
+logger.info('Starting up Lighterpack...');
 
-// Default port is 3000; we can have multiple bindings
-config.get('bindings').map(
-    (bind) => {
-        app.listen(config.get('port'), bind);
-        logger.info(`Listening on [${bind}]:${config.get('port')}`);
-    },
-);
-
+config.get('bindings').map((bind) => {
+    app.listen(config.get('port'), bind);
+    logger.info(`Listening on [${bind}]:${config.get('port')}`);
+});

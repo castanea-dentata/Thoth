@@ -1,4 +1,4 @@
-import assignIn from 'lodash/assignIn';
+import assignIn from 'lodash/assignIn.js';
 import colorUtils from './utils/color.js';
 import weightUtils from './utils/weight.js';
 
@@ -761,3 +761,4 @@ Object.size = function (obj) {
 };
 
 export { Library, List, Category, Item };
+export { default as weightUtils } from './utils/weight.js';

@@ -1,11 +1,10 @@
-const bcrypt = require('bcryptjs');
-const express = require('express');
-const crypto = require('crypto');
-const config = require('config');
-const { logWithRequest } = require('./log.js');
-const prisma = require('./prisma.js');
-
-const { authenticateModerator } = require('./auth.js');
+import bcrypt from 'bcryptjs';
+import express from 'express';
+import crypto from 'crypto';
+import config from 'config';
+import { logWithRequest } from './log.js';
+import prisma from './prisma.js';
+import { authenticateModerator } from './auth.js';
 
 const router = express.Router();
 
@@ -109,4 +108,4 @@ router.post('/moderation/clear-session', (req, res) => {
     authenticateModerator(req, res, clearSession);
 });
 
-module.exports = router;
+export default router;
