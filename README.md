@@ -19,9 +19,8 @@ For Dev Server:
 2. ```$ git clone https://github.com/castanea-dentata/thoth.git```
 3. Install dependancies ```$ npm install```
 4. Create database ```$ npm run setup```
-5. Run node app.js
-6. Run npm run dev
-7. Visit http://localhost:8080
+5. Run npm run dev
+6. Visit http://localhost:8080
 
 For Docker
 1. ```$ git clone https://github.com/castanea-dentata/thoth.git```
@@ -40,10 +39,10 @@ Completed
 - ~~migrate from vuex to pinia~~ - completed
 - ~~resolve issues with various outdated npm packages~~ - completed
 - ~~change database from mongodb to postgres~~ - completed
+- ~~migrate from webpack to vite~~ - completed
 
 To-do
 -----------
-- migrate from webpack to vite
 - all security vulnerabilities from npm audit are fixed, still upgrading outdated packages.
     - had to stop upgrading outdated packages, too many breaking issues at the moment, will come back to this.
 - implement a local image upload feature instead of using imgur, imgur uploads do not function, and the feature will not work.

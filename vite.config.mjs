@@ -39,6 +39,10 @@ export default defineConfig({
             '/account': 'http://localhost:3000',
             '/delete-account': 'http://localhost:3000',
             '/imageUpload': 'http://localhost:3000',
+            '/uploads': { 
+                target:'http://localhost:3000', // This must be changed back to https at some point: https://localhost:3000, only for testing.
+                secure: false,
+            },    
             '/moderation': 'http://localhost:3000',
             '/r': 'http://localhost:3000',
             '/e': 'http://localhost:3000',

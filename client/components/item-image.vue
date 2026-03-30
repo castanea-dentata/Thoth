@@ -16,9 +16,9 @@
                 </div>
                 <div class="lpHalf">
                     <h2>Upload image from disk</h2>
-                    <template v-if="!item.image">
+                    <template v-if="!item.imageUrl">
                         <p class="imageUploadDescription">
-                            Your image will be hosted on imgur.
+                            Your image will be stored on the server.
                         </p>
                         <button id="itemImageUpload" class="lpButton" @click="triggerImageUpload">
                             Upload Image
@@ -28,7 +28,7 @@
                             Uploading image...
                         </p>
                     </template>
-                    <template v-if="item.image">
+                    <template v-if="item.imageUrl">
                         <button id="itemImageUpload" class="lpButton" @click="removeItemImage">
                             Remove Image
                         </button>
@@ -51,6 +51,11 @@ export default {
     name: 'ItemImage',
     components: {
         modal,
+    },
+    computed: {
+        store() {
+            return useLibraryStore();
+        },
     },
     data() {
         return {
@@ -76,27 +81,22 @@ export default {
             this.$refs.imageInput.click();
         },
         uploadImage(evt) {
-            if (!FormData) {
-                alert('Your browser is not supported for file uploads. Please update to a more modern browser.');
-                return;
-            }
             const file = evt.target.files[0];
-            const name = file.name;
-            const size = file.size;
-            const type = file.type;
 
-            if (name.length < 1) {
+            if (!file || file.name.length < 1) {
                 return;
             }
-            if (size > 2500000) {
+            if (file.size > 2500000) {
                 alert('Please upload a file less than 2.5mb');
                 return;
             }
-            if (type != 'image/png' && type != 'image/jpg' && !type != 'image/gif' && type != 'image/jpeg') {
-                alert('File doesnt match png, jpg or gif.');
+            if (file.type != 'image/png' && file.type != 'image/jpg' && file.type != 'image/gif' && file.type != 'image/jpeg') {
+                alert('File does not match png, jpg or gif.');
                 return;
             }
-            const formData = new FormData(this.$refs.imageUploadForm);
+
+            const formData = new FormData();
+            formData.append('image', file);
 
             this.uploading = true;
 
@@ -107,7 +107,7 @@ export default {
             })
                 .then((response) => {
                     this.uploading = false;
-                    this.store.updateItemImage({ image: response.data.id, item: this.item });
+                    this.store.updateItemImageUrl({ imageUrl: response.imageUrl, item: this.item });
                     this.shown = false;
                 }).catch((response) => {
                     this.uploading = false;
@@ -117,6 +117,7 @@ export default {
         removeItemImage() {
             this.store.removeItemImage(this.item);
             this.item.image = '';
+            this.item.imageUrl = '';
         },
     },
 };
